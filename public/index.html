@@ -925,6 +925,14 @@
             elements.deleteModal.style.display = 'flex';
         }
 
+        function showPeopleModal() {
+    document.getElementById('people-modal').style.display = 'flex';
+        }
+
+        function hidePeopleModal() {
+    document.getElementById('people-modal').style.display = 'none';
+        }
+
         function hideDeleteModal() {
             elements.deleteModal.style.display = 'none';
             state.deletePersonId = null;
