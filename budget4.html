@@ -1,0 +1,1116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Budget Tracker</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <h1>Budget Tracker</h1>
+            <button onclick="showPeopleModal()" class="btn btn-primary">People Management</button>
+        </header>
+
+        <div class="content-grid">
+            <!-- Transaction Form -->
+            <section class="card transaction-section">
+                <div class="card-header">
+                    <h2>New Transaction</h2>
+                </div>
+                <div class="card-body">
+                    <form id="transaction-form">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Person</label>
+                                <select id="transaction-person" required class="input-field"></select>
+                            </div>
+                            <div class="form-group">
+                                <label>Type</label>
+                                <select id="transaction-type" required class="input-field">
+                                    <option value="income">Income</option>
+                                    <option value="expense">Expense</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Category</label>
+                                <select id="transaction-category" required class="input-field">
+                                    <!-- Income Categories -->
+                                    <optgroup label="Income">
+                                        <option value="salary">Salary</option>
+                                        <option value="investment">Investment</option>
+                                        <option value="freelance">Freelance</option>
+                                        <option value="bonus">Bonus</option>
+                                        <option value="gifts">Gifts</option>
+                                        <option value="rental">Rental Income</option>
+                                        <option value="refunds">Refunds</option>
+                                        <option value="other_income">Other Income</option>
+                                    </optgroup>
+
+                                    <!-- Expense Categories -->
+                                    <optgroup label="Housing">
+                                        <option value="rent">Rent/Mortgage</option>
+                                        <option value="utilities">Utilities</option>
+                                        <option value="maintenance">Home Maintenance</option>
+                                        <option value="insurance">Home Insurance</option>
+                                    </optgroup>
+
+                                    <optgroup label="Transportation">
+                                        <option value="car_payment">Car Payment</option>
+                                        <option value="gas">Gas</option>
+                                        <option value="car_maintenance">Car Maintenance</option>
+                                        <option value="public_transport">Public Transport</option>
+                                        <option value="parking">Parking</option>
+                                    </optgroup>
+
+                                    <optgroup label="Food & Dining">
+                                        <option value="groceries">Groceries</option>
+                                        <option value="restaurants">Restaurants</option>
+                                        <option value="takeout">Takeout</option>
+                                        <option value="coffee">Coffee Shops</option>
+                                    </optgroup>
+
+                                    <optgroup label="Personal">
+                                        <option value="healthcare">Healthcare</option>
+                                        <option value="clothing">Clothing</option>
+                                        <option value="education">Education</option>
+                                        <option value="gym">Gym/Fitness</option>
+                                        <option value="entertainment">Entertainment</option>
+                                        <option value="subscriptions">Subscriptions</option>
+                                        <option value="personal_care">Personal Care</option>
+                                    </optgroup>
+
+                                    <optgroup label="Bills & Utilities">
+                                        <option value="phone">Phone</option>
+                                        <option value="internet">Internet</option>
+                                        <option value="streaming">Streaming Services</option>
+                                        <option value="insurance">Insurance</option>
+                                    </optgroup>
+
+                                    <optgroup label="Other">
+                                        <option value="gifts_given">Gifts Given</option>
+                                        <option value="donations">Donations</option>
+                                        <option value="taxes">Taxes</option>
+                                        <option value="other_expense">Other Expenses</option>
+                                    </optgroup>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Amount</label>
+                                <input type="number" id="transaction-amount" step="0.01" min="0" required class="input-field">
+                            </div>
+                            <div class="form-group">
+                                <label>Vendor</label>
+                                <input type="text" id="transaction-vendor" required class="input-field">
+                            </div>
+                            <div class="form-group">
+                                <label>Date</label>
+                                <input type="date" id="transaction-date" required class="input-field">
+                            </div>
+                            <div class="form-group span-2">
+                                <label>Description (Optional)</label>
+                                <input type="text" id="transaction-description" class="input-field">
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-large">Add Transaction</button>
+                    </form>
+                </div>
+            </section>
+
+            <!-- Filters Section -->
+            <section class="card filters-section">
+                <div class="card-header">
+                    <h2>Filters</h2>
+                </div>
+                <div class="card-body">
+                    <div class="filters-grid">
+                        <div class="form-group">
+                            <label>Quick Filter</label>
+                            <select id="period-filter" class="input-field">
+                                <option value="all">All Time</option>
+                                <option value="daily">Today</option>
+                                <option value="weekly">This Week</option>
+                                <option value="monthly">This Month</option>
+                                <option value="yearly">This Year</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Start Date</label>
+                            <input type="date" id="start-date" class="input-field">
+                        </div>
+                        <div class="form-group">
+                            <label>End Date</label>
+                            <input type="date" id="end-date" class="input-field">
+                        </div>
+                        <div class="filter-actions">
+                            <button id="apply-filter" class="btn btn-secondary">Apply</button>
+                            <button id="clear-filter" class="btn btn-outline">Clear</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Summary Section -->
+            <section class="card summary-section">
+                <div class="card-header">
+                    <h2>Summary</h2>
+                </div>
+                <div class="card-body">
+                    <div id="total-summary" class="summary-grid"></div>
+                    <div class="charts-container">
+                        <div class="chart-wrapper">
+                            <canvas id="income-expense-chart"></canvas>
+                        </div>
+                        <div class="chart-wrapper">
+                            <canvas id="category-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Transactions Section -->
+            <section class="card transactions-section">
+                <div class="card-header">
+                    <h2>Recent Transactions</h2>
+                </div>
+                <div class="card-body">
+                    <div id="transaction-list" class="transaction-list"></div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <!-- People Management Modal -->
+    <div id="people-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>People Management</h2>
+                <button onclick="hidePeopleModal()" class="btn-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="input-group">
+                    <input type="text" id="person-name" placeholder="Enter name" class="input-field">
+                    <button onclick="handleQuickAddPerson()" class="btn btn-primary">Add Person</button>
+                </div>
+                <div id="people-list" class="people-list">
+                    <!-- People list will be populated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="delete-confirm-modal" class="confirm-delete-modal">
+        <div class="modal-content">
+            <h3>Confirm Delete</h3>
+            <p>Are you sure you want to delete <span id="delete-person-name"></span>? This will also delete all associated transactions.</p>
+            <div class="modal-actions">
+                <button id="cancel-delete" class="btn btn-outline">Cancel</button>
+                <button id="confirm-delete" class="btn btn-danger">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-light: #3b82f6;
+            --primary-dark: #1d4ed8;
+            --success: #22c55e;
+            --danger: #ef4444;
+            --gray-50: #f8fafc;
+            --gray-100: #f1f5f9;
+            --gray-200: #e2e8f0;
+            --gray-300: #cbd5e1;
+            --gray-400: #94a3b8;
+            --gray-500: #64748b;
+            --gray-600: #475569;
+            --gray-700: #334155;
+            --gray-800: #1e293b;
+            --gray-900: #0f172a;
+            --radius-sm: 0.375rem;
+            --radius: 0.5rem;
+            --radius-lg: 0.75rem;
+            --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background-color: var(--gray-100);
+            color: var(--gray-800);
+            line-height: 1.5;
+        }
+
+        .app-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .app-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding: 0 1rem;
+        }
+
+        .app-header h1 {
+            font-size: 2.5rem;
+            font-weight: 600;
+            color: var(--gray-900);
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 1.5rem;
+        }
+
+        .card {
+            background: white;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+        }
+
+        .transaction-section {
+            grid-column: span 12;
+        }
+
+        .filters-section {
+            grid-column: span 12;
+        }
+
+        .summary-section {
+            grid-column: span 12;
+        }
+
+        .transactions-section {
+            grid-column: span 12;
+        }
+
+        .card-header {
+            padding: 1.25rem 1.5rem;
+            background: var(--gray-50);
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .card-header h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--gray-800);
+        }
+
+        .card-body {
+            padding: 1.5rem;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .input-group .input-field {
+            flex: 1;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        .span-2 {
+            grid-column: span 2;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .form-group label {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--gray-700);
+        }
+
+        .input-field {
+            padding: 0.625rem;
+            border: 1px solid var(--gray-300);
+            border-radius: var(--radius);
+            font-size: 0.875rem;
+            transition: all 0.2s;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 1px var(--primary);
+        }
+
+        .btn {
+            padding: 0.625rem 1rem;
+            border: none;
+            border-radius: var(--radius);
+            font-weight: 500;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-secondary {
+            background: var(--gray-500);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: var(--gray-600);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            opacity: 0.9;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--gray-300);
+            color: var(--gray-700);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--gray-400);
+            background: var(--gray-50);
+        }
+
+        .btn-large {
+            width: 100%;
+            padding: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        .filters-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            align-items: end;
+        }
+
+        .filter-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .summary-item {
+            padding: 1.25rem;
+            background: var(--gray-50);
+            border-radius: var(--radius);
+            border: 1px solid var(--gray-200);
+        }
+
+        .summary-item h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--gray-900);
+            margin-bottom: 0.5rem;
+        }
+
+        .charts-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+        }
+
+        .chart-wrapper {
+            aspect-ratio: 16/9;
+            width: 100%;
+        }
+
+        .transaction-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .transaction-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: var(--gray-50);
+            border-radius: var(--radius);
+            border: 1px solid var(--gray-200);
+        }
+
+        .transaction-info strong {
+            color: var(--gray-900);
+            font-weight: 500;
+        }
+
+        .transaction-info small {
+            color: var(--gray-600);
+            font-size: 0.875rem;
+        }
+
+        .transaction-amount {
+            font-weight: 600;
+        }
+
+        .income .transaction-amount {
+            color: var(--success);
+        }
+
+        .expense .transaction-amount {
+            color: var(--danger);
+        }
+
+        .transaction-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .people-list {
+            margin-top: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .person-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem;
+            background: var(--gray-50);
+            border-radius: var(--radius);
+            border: 1px solid var(--gray-200);
+        }
+
+        .person-name {
+            font-weight: 500;
+            color: var(--gray-800);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: var(--radius-lg);
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            padding: 1.25rem;
+            border-bottom: 1px solid var(--gray-200);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .btn-close {
+            background: transparent;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--gray-500);
+        }
+
+        .btn-close:hover {
+            color: var(--gray-700);
+        }
+
+        .confirm-delete-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            justify-content: flex-end;
+        }
+
+        @media (max-width: 1024px) {
+            .charts-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .app-container {
+                padding: 1rem;
+            }
+
+            .form-grid,
+            .filters-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .span-2 {
+                grid-column: span 1;
+            }
+        }
+    </style>
+
+    <script>
+        const TransactionType = {
+            INCOME: 'income',
+            EXPENSE: 'expense'
+        };
+
+        const state = {
+            people: [],
+            transactions: [],
+            currentFilters: {
+                startDate: null,
+                endDate: null
+            },
+            deletePersonId: null
+        };
+
+        const elements = {
+            personForm: document.getElementById('person-form'),
+            transactionForm: document.getElementById('transaction-form'),
+            personSelect: document.getElementById('transaction-person'),
+            transactionList: document.getElementById('transaction-list'),
+            totalSummary: document.getElementById('total-summary'),
+            incomeExpenseChart: document.getElementById('income-expense-chart'),
+            categoryChart: document.getElementById('category-chart'),
+            deleteModal: document.getElementById('delete-confirm-modal'),
+            deletePersonName: document.getElementById('delete-person-name'),
+            confirmDelete: document.getElementById('confirm-delete'),
+            cancelDelete: document.getElementById('cancel-delete')
+        };
+
+        let charts = {
+            incomeExpense: null,
+            category: null
+        };
+
+        // Event Listeners
+        elements.transactionForm?.addEventListener('submit', handleAddTransaction);
+        elements.confirmDelete?.addEventListener('click', confirmDeletePerson);
+        elements.cancelDelete?.addEventListener('click', hideDeleteModal);
+
+        // New modal functions
+        function showPeopleModal() {
+            document.getElementById('people-modal').style.display = 'flex';
+        }
+
+        function hidePeopleModal() {
+            document.getElementById('people-modal').style.display = 'none';
+        }
+
+        function handleAddPerson(e) {
+            if (e) e.preventDefault();
+            const nameInput = document.getElementById('person-name');
+            const name = nameInput?.value?.trim();
+
+            if (name) {
+                const person = {
+                    id: generateId(),
+                    name
+                };
+                state.people.push(person);
+                updatePersonSelect();
+                updatePeopleList();
+                nameInput.value = '';
+                saveToLocalStorage();
+            }
+        }
+
+        function handleQuickAddPerson() {
+            handleAddPerson();
+            // Don't hide modal to allow adding multiple people
+        }
+
+        function showDeleteModal(personId) {
+            const person = state.people.find(p => p.id === personId);
+            if (!person) return;
+
+            state.deletePersonId = personId;
+            elements.deletePersonName.textContent = person.name;
+            elements.deleteModal.style.display = 'flex';
+        }
+
+        function hideDeleteModal() {
+            elements.deleteModal.style.display = 'none';
+            state.deletePersonId = null;
+        }
+
+        function confirmDeletePerson() {
+            if (!state.deletePersonId) return;
+
+            // Remove all transactions for this person
+            state.transactions = state.transactions.filter(t => t.personId !== state.deletePersonId);
+            
+            // Remove the person
+            state.people = state.people.filter(p => p.id !== state.deletePersonId);
+            
+            // Update UI
+            updatePersonSelect();
+            updatePeopleList();
+            updateTransactionList();
+            updateSummary();
+            saveToLocalStorage();
+            hideDeleteModal();
+        }
+
+        function updatePeopleList() {
+            const peopleList = document.getElementById('people-list');
+            if (!peopleList) return;
+
+            peopleList.innerHTML = '';
+            state.people.forEach(person => {
+                const div = document.createElement('div');
+                div.className = 'person-item';
+                div.innerHTML = `
+                    <span class="person-name">${person.name}</span>
+                    <button onclick="showDeleteModal('${person.id}')" class="btn btn-outline">Delete</button>
+                `;
+                peopleList.appendChild(div);
+            });
+        }
+
+        function handleAddTransaction(e) {
+            e.preventDefault();
+            const form = e.target;
+            
+            const transaction = {
+                id: generateId(),
+                personId: form.querySelector('#transaction-person')?.value,
+                type: form.querySelector('#transaction-type')?.value,
+                category: form.querySelector('#transaction-category')?.value,
+                vendor: form.querySelector('#transaction-vendor')?.value,
+                description: form.querySelector('#transaction-description')?.value,
+                amount: parseFloat(form.querySelector('#transaction-amount')?.value || '0'),
+                date: form.querySelector('#transaction-date')?.value
+            };
+
+            if (validateTransaction(transaction)) {
+                state.transactions.push(transaction);
+                const filteredTransactions = applyCurrentFilters();
+                updateTransactionList(filteredTransactions);
+                updateSummary(filteredTransactions);
+                form.reset();
+                
+                const dateInput = form.querySelector('#transaction-date');
+                if (dateInput) {
+                    dateInput.value = new Date().toISOString().split('T')[0];
+                }
+                
+                saveToLocalStorage();
+            }
+        }
+
+        function removeTransaction(transactionId) {
+            const index = state.transactions.findIndex(t => t.id === transactionId);
+            if (index !== -1) {
+                state.transactions.splice(index, 1);
+                const filteredTransactions = applyCurrentFilters();
+                updateTransactionList(filteredTransactions);
+                updateSummary(filteredTransactions);
+                saveToLocalStorage();
+            }
+        }
+
+        function applyDateFilter() {
+            const startDate = document.getElementById('start-date').value;
+            const endDate = document.getElementById('end-date').value;
+
+            if (!startDate || !endDate) {
+                alert('Please select both start and end dates');
+                return;
+            }
+
+            state.currentFilters.startDate = new Date(startDate);
+            state.currentFilters.endDate = new Date(endDate);
+            
+            const filteredTransactions = applyCurrentFilters();
+            updateTransactionList(filteredTransactions);
+            updateSummary(filteredTransactions);
+        }
+
+        function clearDateFilter() {
+            document.getElementById('start-date').value = '';
+            document.getElementById('end-date').value = '';
+            document.getElementById('period-filter').value = 'all';
+            
+            state.currentFilters.startDate = null;
+            state.currentFilters.endDate = null;
+            
+            updateTransactionList(state.transactions);
+            updateSummary(state.transactions);
+        }
+
+        function handlePeriodChange(e) {
+            const period = e.target.value;
+            const today = new Date();
+            let startDate = new Date();
+            const startDateInput = document.getElementById('start-date');
+            const endDateInput = document.getElementById('end-date');
+
+            switch(period) {
+                case 'daily':
+                    startDate = today;
+                    break;
+                case 'weekly':
+                    startDate.setDate(today.getDate() - 7);
+                    break;
+                case 'monthly':
+                    startDate.setMonth(today.getMonth() - 1);
+                    break;
+                case 'yearly':
+                    startDate.setFullYear(today.getFullYear() - 1);
+                    break;
+                case 'all':
+                    clearDateFilter();
+                    return;
+            }
+
+            startDateInput.value = startDate.toISOString().split('T')[0];
+            endDateInput.value = today.toISOString().split('T')[0];
+            applyDateFilter();
+        }
+
+        function applyCurrentFilters() {
+            if (!state.currentFilters.startDate || !state.currentFilters.endDate) {
+                return state.transactions;
+            }
+
+            return state.transactions.filter(transaction => {
+                const transactionDate = new Date(transaction.date);
+                return transactionDate >= state.currentFilters.startDate && 
+                       transactionDate <= state.currentFilters.endDate;
+            });
+        }
+
+        window.removeTransaction = removeTransaction;
+        window.handleQuickAddPerson = handleQuickAddPerson;
+        window.showDeleteModal = showDeleteModal;
+        window.showPeopleModal = showPeopleModal;
+        window.hidePeopleModal = hidePeopleModal;
+
+        function generateId() {
+            return Date.now().toString(36) + Math.random().toString(36).substr(2);
+        }
+
+        function validateTransaction(transaction) {
+            return (
+                transaction.personId &&
+                transaction.type &&
+                transaction.category &&
+                transaction.vendor &&
+                !isNaN(transaction.amount) &&
+                transaction.amount > 0 &&
+                transaction.date
+            );
+        }
+
+        function updatePersonSelect() {
+            if (!elements.personSelect) return;
+            
+            elements.personSelect.innerHTML = '';
+            state.people.forEach(person => {
+                const option = document.createElement('option');
+                option.value = person.id;
+                option.textContent = person.name;
+                elements.personSelect.appendChild(option);
+            });
+        }
+
+        function updateTransactionList(transactions = state.transactions) {
+            if (!elements.transactionList) return;
+
+            elements.transactionList.innerHTML = '';
+            const sortedTransactions = [...transactions].sort((a, b) => 
+                new Date(b.date).getTime() - new Date(a.date).getTime()
+            );
+
+            sortedTransactions.forEach(transaction => {
+                const person = state.people.find(p => p.id === transaction.personId);
+                const div = document.createElement('div');
+                div.className = `transaction-item ${transaction.type}`;
+                
+                const formattedAmount = new Intl.NumberFormat('en-US', {
+                    style: 'currency',
+                    currency: 'USD'
+                }).format(transaction.amount);
+
+                div.innerHTML = `
+                    <div class="transaction-info">
+                        <strong>${person?.name || 'Unknown'}</strong>
+                        ${transaction.description ? ` - ${transaction.description}` : ''}
+                        <br>
+                        <small>${transaction.category} • ${transaction.vendor} • ${formatDate(transaction.date)}</small>
+                    </div>
+                    <div class="transaction-actions">
+                        <span class="transaction-amount">
+                            ${transaction.type === TransactionType.INCOME ? '+' : '-'}${formattedAmount}
+                        </span>
+                        <button class="btn btn-outline" onclick="removeTransaction('${transaction.id}')">
+                            Delete
+                        </button>
+                    </div>
+                `;
+                elements.transactionList.appendChild(div);
+            });
+        }
+
+        function formatDate(dateString) {
+            const options = { year: 'numeric', month: 'short', day: 'numeric' };
+            return new Date(dateString).toLocaleDateString('en-US', options);
+        }
+
+        function updateSummary(transactions = state.transactions) {
+            if (!elements.totalSummary) return;
+
+            const summary = state.people.map(person => {
+                const personTransactions = transactions.filter(t => t.personId === person.id);
+                const income = personTransactions
+                    .filter(t => t.type === TransactionType.INCOME)
+                    .reduce((sum, t) => sum + t.amount, 0);
+                const expenses = personTransactions
+                    .filter(t => t.type === TransactionType.EXPENSE)
+                    .reduce((sum, t) => sum + t.amount, 0);
+                return {
+                    name: person.name,
+                    income,
+                    expenses,
+                    balance: income - expenses
+                };
+            });
+
+            const formatter = new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD'
+            });
+
+            elements.totalSummary.innerHTML = summary.map(s => `
+                <div class="summary-item">
+                    <h3>${s.name}</h3>
+                    <p>Income: ${formatter.format(s.income)}</p>
+                    <p>Expenses: ${formatter.format(s.expenses)}</p>
+                    <p>Balance: ${formatter.format(s.balance)}</p>
+                </div>
+            `).join('');
+
+            updateCharts(summary);
+        }
+
+        function updateCharts(summary) {
+            if (charts.incomeExpense) {
+                charts.incomeExpense.destroy();
+            }
+
+            if (elements.incomeExpenseChart instanceof HTMLCanvasElement) {
+                charts.incomeExpense = new Chart(elements.incomeExpenseChart, {
+                    type: 'bar',
+                    data: {
+                        labels: summary.map(s => s.name),
+                        datasets: [
+                            {
+                                label: 'Income',
+                                data: summary.map(s => s.income),
+                                backgroundColor: '#22c55e'
+                            },
+                            {
+                                label: 'Expenses',
+                                data: summary.map(s => s.expenses),
+                                backgroundColor: '#ef4444'
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: value => new Intl.NumberFormat('en-US', {
+                                        style: 'currency',
+                                        currency: 'USD',
+                                        maximumFractionDigits: 0
+                                    }).format(value)
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                position: 'bottom'
+                            }
+                        }
+                    }
+                });
+            }
+
+            if (charts.category) {
+                charts.category.destroy();
+            }
+
+            if (elements.categoryChart instanceof HTMLCanvasElement) {
+                const categoryData = {};
+                state.transactions.forEach(t => {
+                    if (t.type === TransactionType.EXPENSE) {
+                        categoryData[t.category] = (categoryData[t.category] || 0) + t.amount;
+                    }
+                });
+
+                charts.category = new Chart(elements.categoryChart, {
+                    type: 'doughnut',
+                    data: {
+                        labels: Object.keys(categoryData),
+                        datasets: [{
+                            data: Object.values(categoryData),
+                            backgroundColor: [
+                                '#3b82f6',
+                                '#22c55e',
+                                '#ef4444',
+                                '#f59e0b',
+                                '#ec4899',
+                                '#8b5cf6',
+                                '#64748b'
+                            ]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    padding: 20
+                                }
+                            },
+                            title: {
+                                display: true,
+                                text: 'Expenses by Category',
+                                padding: {
+                                    bottom: 20
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        function saveToLocalStorage() {
+            try {
+                localStorage.setItem('budgetTrackerPeople', JSON.stringify(state.people));
+                localStorage.setItem('budgetTrackerTransactions', JSON.stringify(state.transactions));
+            } catch (error) {
+                console.error('Error saving to localStorage:', error);
+            }
+        }
+
+        function loadFromLocalStorage() {
+            try {
+                const savedPeople = localStorage.getItem('budgetTrackerPeople');
+                const savedTransactions = localStorage.getItem('budgetTrackerTransactions');
+
+                if (savedPeople) {
+                    state.people = JSON.parse(savedPeople);
+                }
+                if (savedTransactions) {
+                    state.transactions = JSON.parse(savedTransactions);
+                }
+
+                updatePersonSelect();
+                updateTransactionList();
+                updateSummary();
+                updatePeopleList();
+            } catch (error) {
+                console.error('Error loading from localStorage:', error);
+                state.people = [];
+                state.transactions = [];
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadFromLocalStorage();
+            
+            const dateInput = document.getElementById('transaction-date');
+            if (dateInput) {
+                const today = new Date().toISOString().split('T')[0];
+                dateInput.value = today;
+            }
+
+            const applyFilterBtn = document.getElementById('apply-filter');
+            const clearFilterBtn = document.getElementById('clear-filter');
+            const periodFilter = document.getElementById('period-filter');
+
+            applyFilterBtn?.addEventListener('click', applyDateFilter);
+            clearFilterBtn?.addEventListener('click', clearDateFilter);
+            periodFilter?.addEventListener('change', handlePeriodChange);
+
+            updatePersonSelect();
+            updatePeopleList();
+        });
+    </script>
+</body>
+</html>
