@@ -675,6 +675,23 @@
             z-index: 1000;
         }
 
+        .confirm-delete-modal {
+        display: none; /* Hide by default */
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+    }
+
+    .confirm-delete-modal.show {
+    display: flex; /* Only show when 'show' class is added */
+    }
+
         .modal-content {
             background: white;
             border-radius: var(--radius-lg);
@@ -927,13 +944,14 @@
         }
 
         function showDeleteModal(personId) {
-            const person = state.people.find(p => p.id === personId);
-            if (!person) return;
+    const person = state.people.find(p => p.id === personId);
+    if (!person) return;
 
-            state.deletePersonId = personId;
-            elements.deletePersonName.textContent = person.name;
-            elements.deleteModal.style.display = 'flex';
-        }
+    state.deletePersonId = personId;
+    elements.deletePersonName.textContent = person.name;
+    elements.deleteModal.classList.add('show');
+    elements.deleteModal.style.display = 'flex';
+}
 
         function showPeopleModal() {
     document.getElementById('people-modal').style.display = 'flex';
@@ -944,9 +962,10 @@
         }
 
         function hideDeleteModal() {
-            elements.deleteModal.style.display = 'none';
-            state.deletePersonId = null;
-        }
+    elements.deleteModal.classList.remove('show');
+    elements.deleteModal.style.display = 'none';
+    state.deletePersonId = null;
+}
 
         function confirmDeletePerson() {
             if (!state.deletePersonId) return;
