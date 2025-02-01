@@ -150,6 +150,7 @@
       </div>
     </div>
   </div>
+  
   <!-- Main App Container (hidden until login) -->
   <div id="app-container" class="app-container" style="display: none;">
     <header class="app-header">
@@ -333,8 +334,8 @@
       </section>
     </div>
 
-    <!-- Delete Confirmation Modal (with both modal and confirm-delete-modal classes) -->
-    <div id="delete-confirm-modal" class="modal confirm-delete-modal">
+    <!-- Delete Confirmation Modal (with inline style to force hidden by default) -->
+    <div id="delete-confirm-modal" class="modal confirm-delete-modal" style="display: none !important;">
       <div class="modal-content">
         <h3>Confirm Delete</h3>
         <p>Are you sure you want to delete <span id="delete-person-name"></span>? This will also delete all associated transactions.</p>
@@ -345,7 +346,7 @@
       </div>
     </div>
   </div>
-
+  
   <!-- People Management Modal -->
   <div id="people-modal" class="modal">
     <div class="modal-content">
@@ -942,9 +943,8 @@
       state.deletePersonId = personId;
       elements.deletePersonName.textContent = person.name;
       elements.deleteModal.classList.add("show");
-      // Even though CSS now forces display: none unless .show is added,
-      // we remove any inline style if present.
-      elements.deleteModal.style.display = "";
+      // Ensure no inline style interferes:
+      elements.deleteModal.removeAttribute("style");
     }
 
     function showPeopleModal() {
@@ -954,10 +954,10 @@
       document.getElementById("people-modal").classList.remove("show");
     }
 
-    // Updated hideDeleteModal function to remove inline display style
+    // Updated hideDeleteModal to remove inline styles
     function hideDeleteModal() {
       elements.deleteModal.classList.remove("show");
-      elements.deleteModal.style.display = "";
+      elements.deleteModal.removeAttribute("style");
       state.deletePersonId = null;
     }
 
