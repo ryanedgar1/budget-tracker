@@ -106,22 +106,22 @@
     <div class="grid md:grid-cols-4 gap-6 mt-8">
       <div class="bg-white rounded-lg shadow-md p-6">
         <h3 class="text-lg font-bold text-gray-800 mb-1">Total Monthly Income</h3>
-        <p id="monthlyIncome" class="text-3xl font-bold text-green-600">$4,263.22</p>
+        <p id="monthlyIncome" class="text-3xl font-bold text-green-600">$0.00</p>
       </div>
       
       <div class="bg-white rounded-lg shadow-md p-6">
         <h3 class="text-lg font-bold text-gray-800 mb-1">Monthly Expenses</h3>
-        <p id="monthlyExpenses" class="text-3xl font-bold text-red-600">$3,301.64</p>
+        <p id="monthlyExpenses" class="text-3xl font-bold text-red-600">$0.00</p>
       </div>
       
       <div class="bg-white rounded-lg shadow-md p-6">
         <h3 class="text-lg font-bold text-gray-800 mb-1">Average Per Paycheck</h3>
-        <p id="averagePaycheck" class="text-3xl font-bold text-blue-600">$2,131.61</p>
+        <p id="averagePaycheck" class="text-3xl font-bold text-blue-600">$0.00</p>
       </div>
 
       <div class="bg-white rounded-lg shadow-md p-6">
         <h3 class="text-lg font-bold text-gray-800 mb-1">Leftover Per Paycheck</h3>
-        <p id="leftoverPerPaycheck" class="text-3xl font-bold text-purple-600">$480.79</p>
+        <p id="leftoverPerPaycheck" class="text-3xl font-bold text-purple-600">$0.00</p>
       </div>
     </div>
   </div>
@@ -135,7 +135,11 @@
     document.addEventListener('DOMContentLoaded', loadSavedData);
     
     function loadSavedData() {
-      const savedData = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+      const savedData = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{"incomes":[],"expenses":[]}');
+      
+      // Clear existing rows first
+      incomeTableBody.innerHTML = '';
+      expenseTableBody.innerHTML = '';
       
       if (savedData.incomes && savedData.incomes.length > 0) {
         savedData.incomes.forEach(income => {
@@ -168,12 +172,11 @@
         const amountInput = row.querySelector('.incomeAmount');
         const frequencySelect = row.querySelector('.incomeFrequency');
         
-        // Only save if at least one field has data
-        if (nameInput?.value || amountInput?.value) {
+        if (nameInput && amountInput && frequencySelect) {
           data.incomes.push({
-            name: nameInput?.value || '',
-            amount: amountInput?.value || '',
-            frequency: frequencySelect?.value || 'monthly'
+            name: nameInput.value || '',
+            amount: amountInput.value || '',
+            frequency: frequencySelect.value || 'monthly'
           });
         }
       });
@@ -184,20 +187,16 @@
         const totalInput = row.querySelector('.totalExpense');
         const portionInput = row.querySelector('.yourPortion');
         
-        // Only save if at least one field has data
-        if (nameInput?.value || totalInput?.value || portionInput?.value) {
+        if (nameInput && totalInput && portionInput) {
           data.expenses.push({
-            name: nameInput?.value || '',
-            total: totalInput?.value || '',
-            portion: portionInput?.value || ''
+            name: nameInput.value || '',
+            total: totalInput.value || '',
+            portion: portionInput.value || ''
           });
         }
       });
       
-      // Save to localStorage if we have data
-      if (data.incomes.length > 0 || data.expenses.length > 0) {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-      }
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
     }
     
     function clearAllData() {
@@ -387,7 +386,10 @@
         const monthlyAmount = getMonthlyAmount(amount, frequency);
         totalMonthlyIncome += monthlyAmount;
         
-        row.querySelector('.monthlyIncomeTotal').textContent = `${monthlyAmount.toFixed(2)}`;
+        const monthlyTotalElement = row.querySelector('.monthlyIncomeTotal');
+        if (monthlyTotalElement) {
+          monthlyTotalElement.textContent = `$${monthlyAmount.toFixed(2)}`;
+        }
       });
       
       // Calculate expenses
@@ -400,18 +402,26 @@
         
         const perPaycheckExpense = yourMonthlyExpense / 2; // Assuming biweekly payments
         
-        row.querySelector('.monthlyExpense').textContent = `${yourMonthlyExpense.toFixed(2)}`;
-        row.querySelector('.perPaycheckExpense').textContent = `${perPaycheckExpense.toFixed(2)}`;
+        const monthlyElement = row.querySelector('.monthlyExpense');
+        const paycheckElement = row.querySelector('.perPaycheckExpense');
+        
+        if (monthlyElement) {
+          monthlyElement.textContent = `$${yourMonthlyExpense.toFixed(2)}`;
+        }
+        if (paycheckElement) {
+          paycheckElement.textContent = `$${perPaycheckExpense.toFixed(2)}`;
+        }
       });
       
-      const monthlySavings = totalMonthlyIncome - totalMonthlyExpenses;
+      // Calculate per-paycheck amounts
       const averagePaycheck = totalMonthlyIncome / 2; // Assuming biweekly payments
+      const leftoverPerPaycheck = (totalMonthlyIncome - totalMonthlyExpenses) / 2;
       
       // Update the summary cards
-      document.getElementById('monthlyIncome').textContent = `${totalMonthlyIncome.toFixed(2)}`;
-      document.getElementById('monthlyExpenses').textContent = `${totalMonthlyExpenses.toFixed(2)}`;
-      document.getElementById('monthlySavings').textContent = `${monthlySavings.toFixed(2)}`;
-      document.getElementById('averagePaycheck').textContent = `${averagePaycheck.toFixed(2)}`;
+      document.getElementById('monthlyIncome').textContent = `$${totalMonthlyIncome.toFixed(2)}`;
+      document.getElementById('monthlyExpenses').textContent = `$${totalMonthlyExpenses.toFixed(2)}`;
+      document.getElementById('averagePaycheck').textContent = `$${averagePaycheck.toFixed(2)}`;
+      document.getElementById('leftoverPerPaycheck').textContent = `$${leftoverPerPaycheck.toFixed(2)}`;
     }
   </script>
 </body>
