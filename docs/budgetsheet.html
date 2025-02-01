@@ -6,7 +6,6 @@
   <title>Modern Budget Tracker</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    /* Custom animations */
     .fade-in {
       animation: fadeIn 0.3s ease-in;
     }
@@ -14,7 +13,6 @@
       from { opacity: 0; transform: translateY(10px); }
       to { opacity: 1; transform: translateY(0); }
     }
-    /* Custom input styling */
     input[type="number"]::-webkit-inner-spin-button,
     input[type="number"]::-webkit-outer-spin-button {
       -webkit-appearance: none;
@@ -27,7 +25,12 @@
 </head>
 <body class="bg-gray-50 min-h-screen">
   <div class="container mx-auto px-4 py-8 max-w-5xl">
-    <h1 class="text-3xl font-bold text-gray-800 mb-8">Modern Budget Tracker</h1>
+    <div class="flex justify-between items-center mb-8">
+      <h1 class="text-3xl font-bold text-gray-800">Modern Budget Tracker</h1>
+      <button onclick="clearAllData()" class="text-red-600 hover:text-red-900 text-sm font-medium">
+        Reset All Data
+      </button>
+    </div>
     
     <!-- Main input form -->
     <div class="bg-white rounded-lg shadow-md p-6 mb-8">
@@ -112,16 +115,67 @@
   </div>
 
   <script>
+    const STORAGE_KEY = 'budgetTrackerData';
     const expenseTableBody = document.querySelector('#expenseTable tbody');
     
-    function addExpenseRow() {
+    // Load saved data when page loads
+    document.addEventListener('DOMContentLoaded', loadSavedData);
+    
+    function loadSavedData() {
+      const savedData = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+      
+      if (savedData.paycheckAmount) {
+        document.getElementById('paycheckAmount').value = savedData.paycheckAmount;
+      }
+      
+      if (savedData.payFrequency) {
+        document.getElementById('payFrequency').value = savedData.payFrequency;
+      }
+      
+      if (savedData.expenses && savedData.expenses.length > 0) {
+        savedData.expenses.forEach(expense => {
+          addExpenseRow(expense);
+        });
+      } else {
+        addExpenseRow(); // Add one empty row if no saved expenses
+      }
+      
+      calculateBudget();
+    }
+    
+    function saveData() {
+      const data = {
+        paycheckAmount: document.getElementById('paycheckAmount').value,
+        payFrequency: document.getElementById('payFrequency').value,
+        expenses: []
+      };
+      
+      expenseTableBody.querySelectorAll('tr').forEach(row => {
+        data.expenses.push({
+          name: row.querySelector('.expenseName').value,
+          total: row.querySelector('.totalExpense').value,
+          portion: row.querySelector('.yourPortion').value
+        });
+      });
+      
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    }
+    
+    function clearAllData() {
+      if (confirm('Are you sure you want to reset all data? This cannot be undone.')) {
+        localStorage.removeItem(STORAGE_KEY);
+        location.reload();
+      }
+    }
+    
+    function addExpenseRow(savedExpense = null) {
       const row = document.createElement('tr');
       row.className = 'fade-in';
       
       const inputs = {
-        name: '',
-        total: '',
-        portion: ''
+        name: savedExpense ? savedExpense.name : '',
+        total: savedExpense ? savedExpense.total : '',
+        portion: savedExpense ? savedExpense.portion : ''
       };
       
       row.innerHTML = `
@@ -169,7 +223,10 @@
       
       // Add input event listeners
       row.querySelectorAll('input').forEach(input => {
-        input.addEventListener('input', calculateBudget);
+        input.addEventListener('input', () => {
+          calculateBudget();
+          saveData();
+        });
       });
     }
     
@@ -182,6 +239,7 @@
       setTimeout(() => {
         row.remove();
         calculateBudget();
+        saveData();
       }, 300);
     }
     
@@ -225,11 +283,14 @@
     }
     
     // Add event listeners to main form inputs
-    document.getElementById('paycheckAmount').addEventListener('input', calculateBudget);
-    document.getElementById('payFrequency').addEventListener('change', calculateBudget);
-    
-    // Add initial expense row
-    addExpenseRow();
+    document.getElementById('paycheckAmount').addEventListener('input', () => {
+      calculateBudget();
+      saveData();
+    });
+    document.getElementById('payFrequency').addEventListener('change', () => {
+      calculateBudget();
+      saveData();
+    });
   </script>
 </body>
 </html>
