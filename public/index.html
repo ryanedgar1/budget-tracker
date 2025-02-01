@@ -8,11 +8,331 @@
   <link rel="apple-touch-icon" href="/logo.png" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
-
+  
   <!-- Add Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+  
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-light: #3b82f6;
+      --primary-dark: #1d4ed8;
+      --success: #22c55e;
+      --danger: #ef4444;
+      --gray-50: #f8fafc;
+      --gray-100: #f1f5f9;
+      --gray-200: #e2e8f0;
+      --gray-300: #cbd5e1;
+      --gray-400: #94a3b8;
+      --gray-500: #64748b;
+      --gray-600: #475569;
+      --gray-700: #334155;
+      --gray-800: #1e293b;
+      --gray-900: #0f172a;
+      --radius-sm: 0.375rem;
+      --radius: 0.5rem;
+      --radius-lg: 0.75rem;
+      --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+      --shadow-lg: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+    }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background-color: var(--gray-100);
+      color: var(--gray-800);
+      line-height: 1.5;
+    }
+    .app-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+    .app-header {
+      margin-bottom: 2rem;
+    }
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 1rem;
+    }
+    .header-actions {
+      display: flex;
+      gap: 1rem;
+    }
+    .app-header h1 {
+      font-size: 2.5rem;
+      font-weight: 600;
+      color: var(--gray-900);
+    }
+    .content-grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 1.5rem;
+    }
+    .card {
+      background: white;
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      overflow: hidden;
+    }
+    .transaction-section,
+    .filters-section,
+    .summary-section,
+    .transactions-section {
+      grid-column: span 12;
+    }
+    .card-header {
+      padding: 1.25rem 1.5rem;
+      background: var(--gray-50);
+      border-bottom: 1px solid var(--gray-200);
+    }
+    .card-header h2 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--gray-800);
+    }
+    .card-body {
+      padding: 1.5rem;
+    }
+    .input-group {
+      display: flex;
+      gap: 0.75rem;
+    }
+    .input-group .input-field {
+      flex: 1;
+    }
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+    }
+    .span-2 {
+      grid-column: span 2;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .form-group label {
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--gray-700);
+    }
+    .input-field {
+      padding: 0.625rem;
+      border: 1px solid var(--gray-300);
+      border-radius: var(--radius);
+      font-size: 0.875rem;
+      transition: all 0.2s;
+    }
+    .input-field:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 1px var(--primary);
+    }
+    .btn {
+      padding: 0.625rem 1rem;
+      border: none;
+      border-radius: var(--radius);
+      font-weight: 500;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+    .btn-primary:hover {
+      background: var(--primary-dark);
+    }
+    .btn-secondary {
+      background: var(--gray-500);
+      color: white;
+    }
+    .btn-secondary:hover {
+      background: var(--gray-600);
+    }
+    .btn-danger {
+      background: var(--danger);
+      color: white;
+    }
+    .btn-danger:hover {
+      opacity: 0.9;
+    }
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--gray-300);
+      color: var(--gray-700);
+    }
+    .btn-outline:hover {
+      border-color: var(--gray-400);
+      background: var(--gray-50);
+    }
+    .btn-large {
+      width: 100%;
+      padding: 0.75rem;
+      margin-top: 1rem;
+    }
+    .filters-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      align-items: end;
+    }
+    .filter-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .summary-item {
+      padding: 1.25rem;
+      background: var(--gray-50);
+      border-radius: var(--radius);
+      border: 1px solid var(--gray-200);
+    }
+    .summary-item h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--gray-900);
+      margin-bottom: 0.5rem;
+    }
+    .charts-container {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+    }
+    .chart-wrapper {
+      aspect-ratio: 16/9;
+      width: 100%;
+    }
+    .transaction-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    .transaction-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem;
+      background: var(--gray-50);
+      border-radius: var(--radius);
+      border: 1px solid var(--gray-200);
+    }
+    .transaction-info strong {
+      color: var(--gray-900);
+      font-weight: 500;
+    }
+    .transaction-info small {
+      color: var(--gray-600);
+      font-size: 0.875rem;
+    }
+    .transaction-amount {
+      font-weight: 600;
+    }
+    .income .transaction-amount {
+      color: var(--success);
+    }
+    .expense .transaction-amount {
+      color: var(--danger);
+    }
+    .transaction-actions {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    /* MODAL STYLES */
+    .modal {
+      display: none !important;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    .modal.show {
+      display: flex !important;
+    }
+    .modal-content {
+      background: white;
+      border-radius: var(--radius-lg);
+      max-width: 500px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .modal-header {
+      padding: 1.25rem;
+      border-bottom: 1px solid var(--gray-200);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .modal-body {
+      padding: 1.5rem;
+    }
+    .btn-close {
+      background: transparent;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: var(--gray-500);
+    }
+    .btn-close:hover {
+      color: var(--gray-700);
+    }
+    .error-message {
+      color: var(--danger);
+      margin-top: 1rem;
+      font-size: 0.875rem;
+    }
+    .form-actions {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    /* FORCE THE DELETE MODAL TO BE HIDDEN BY DEFAULT */
+    #delete-confirm-modal {
+      display: none !important;
+    }
+    @media (max-width: 1024px) {
+      .charts-container {
+        grid-template-columns: 1fr;
+      }
+    }
+    @media (max-width: 768px) {
+      .app-container {
+        padding: 1rem;
+      }
+      .form-grid,
+      .filters-grid {
+        grid-template-columns: 1fr;
+      }
+      .span-2 {
+        grid-column: span 1;
+      }
+    }
+  </style>
 </head>
 <body>
   <!-- Login Modal -->
@@ -150,7 +470,7 @@
       </div>
     </div>
   </div>
-  
+
   <!-- Main App Container (hidden until login) -->
   <div id="app-container" class="app-container" style="display: none;">
     <header class="app-header">
@@ -366,387 +686,6 @@
     </div>
   </div>
 
-  <style>
-    :root {
-      --primary: #2563eb;
-      --primary-light: #3b82f6;
-      --primary-dark: #1d4ed8;
-      --success: #22c55e;
-      --danger: #ef4444;
-      --gray-50: #f8fafc;
-      --gray-100: #f1f5f9;
-      --gray-200: #e2e8f0;
-      --gray-300: #cbd5e1;
-      --gray-400: #94a3b8;
-      --gray-500: #64748b;
-      --gray-600: #475569;
-      --gray-700: #334155;
-      --gray-800: #1e293b;
-      --gray-900: #0f172a;
-      --radius-sm: 0.375rem;
-      --radius: 0.5rem;
-      --radius-lg: 0.75rem;
-      --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
-      --shadow-lg: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-    }
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: 'Inter', system-ui, sans-serif;
-      background-color: var(--gray-100);
-      color: var(--gray-800);
-      line-height: 1.5;
-    }
-
-    .app-container {
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 2rem;
-    }
-
-    .app-header {
-      margin-bottom: 2rem;
-    }
-
-    .header-content {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 0 1rem;
-    }
-
-    .header-actions {
-      display: flex;
-      gap: 1rem;
-    }
-
-    .app-header h1 {
-      font-size: 2.5rem;
-      font-weight: 600;
-      color: var(--gray-900);
-    }
-
-    .content-grid {
-      display: grid;
-      grid-template-columns: repeat(12, 1fr);
-      gap: 1.5rem;
-    }
-
-    .card {
-      background: white;
-      border-radius: var(--radius-lg);
-      box-shadow: var(--shadow-lg);
-      overflow: hidden;
-    }
-
-    .transaction-section {
-      grid-column: span 12;
-    }
-
-    .filters-section {
-      grid-column: span 12;
-    }
-
-    .summary-section {
-      grid-column: span 12;
-    }
-
-    .transactions-section {
-      grid-column: span 12;
-    }
-    .card-header {
-      padding: 1.25rem 1.5rem;
-      background: var(--gray-50);
-      border-bottom: 1px solid var(--gray-200);
-    }
-
-    .card-header h2 {
-      font-size: 1.25rem;
-      font-weight: 600;
-      color: var(--gray-800);
-    }
-
-    .card-body {
-      padding: 1.5rem;
-    }
-
-    .input-group {
-      display: flex;
-      gap: 0.75rem;
-    }
-
-    .input-group .input-field {
-      flex: 1;
-    }
-
-    .form-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 1rem;
-    }
-
-    .span-2 {
-      grid-column: span 2;
-    }
-
-    .form-group {
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-    }
-
-    .form-group label {
-      font-size: 0.875rem;
-      font-weight: 500;
-      color: var(--gray-700);
-    }
-
-    .input-field {
-      padding: 0.625rem;
-      border: 1px solid var(--gray-300);
-      border-radius: var(--radius);
-      font-size: 0.875rem;
-      transition: all 0.2s;
-    }
-
-    .input-field:focus {
-      outline: none;
-      border-color: var(--primary);
-      box-shadow: 0 0 0 1px var(--primary);
-    }
-
-    .btn {
-      padding: 0.625rem 1rem;
-      border: none;
-      border-radius: var(--radius);
-      font-weight: 500;
-      font-size: 0.875rem;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .btn-primary {
-      background: var(--primary);
-      color: white;
-    }
-
-    .btn-primary:hover {
-      background: var(--primary-dark);
-    }
-
-    .btn-secondary {
-      background: var(--gray-500);
-      color: white;
-    }
-
-    .btn-secondary:hover {
-      background: var(--gray-600);
-    }
-
-    .btn-danger {
-      background: var(--danger);
-      color: white;
-    }
-
-    .btn-danger:hover {
-      opacity: 0.9;
-    }
-
-    .btn-outline {
-      background: transparent;
-      border: 1px solid var(--gray-300);
-      color: var(--gray-700);
-    }
-
-    .btn-outline:hover {
-      border-color: var(--gray-400);
-      background: var(--gray-50);
-    }
-
-    .btn-large {
-      width: 100%;
-      padding: 0.75rem;
-      margin-top: 1rem;
-    }
-
-    .filters-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 1rem;
-      align-items: end;
-    }
-
-    .filter-actions {
-      display: flex;
-      gap: 0.5rem;
-    }
-
-    .summary-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 1rem;
-      margin-bottom: 2rem;
-    }
-
-    .summary-item {
-      padding: 1.25rem;
-      background: var(--gray-50);
-      border-radius: var(--radius);
-      border: 1px solid var(--gray-200);
-    }
-
-    .summary-item h3 {
-      font-size: 1rem;
-      font-weight: 600;
-      color: var(--gray-900);
-      margin-bottom: 0.5rem;
-    }
-
-    .charts-container {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 1.5rem;
-    }
-
-    .chart-wrapper {
-      aspect-ratio: 16/9;
-      width: 100%;
-    }
-
-    .transaction-list {
-      display: flex;
-      flex-direction: column;
-      gap: 0.75rem;
-      max-height: 400px;
-      overflow-y: auto;
-    }
-
-    .transaction-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 1rem;
-      background: var(--gray-50);
-      border-radius: var(--radius);
-      border: 1px solid var(--gray-200);
-    }
-
-    .transaction-info strong {
-      color: var(--gray-900);
-      font-weight: 500;
-    }
-
-    .transaction-info small {
-      color: var(--gray-600);
-      font-size: 0.875rem;
-    }
-
-    .transaction-amount {
-      font-weight: 600;
-    }
-
-    .income .transaction-amount {
-      color: var(--success);
-    }
-
-    .expense .transaction-amount {
-      color: var(--danger);
-    }
-
-    .transaction-actions {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-    }
-
-    /* UPDATED MODAL STYLES WITH !important */
-    .modal {
-      display: none !important;
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0, 0, 0, 0.5);
-      align-items: center;
-      justify-content: center;
-      z-index: 1000;
-    }
-
-    .modal.show {
-      display: flex !important;
-    }
-
-    .modal-content {
-      background: white;
-      border-radius: var(--radius-lg);
-      max-width: 500px;
-      width: 90%;
-      max-height: 90vh;
-      overflow-y: auto;
-    }
-
-    .modal-header {
-      padding: 1.25rem;
-      border-bottom: 1px solid var(--gray-200);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .modal-body {
-      padding: 1.5rem;
-    }
-
-    .btn-close {
-      background: transparent;
-      border: none;
-      font-size: 1.5rem;
-      cursor: pointer;
-      color: var(--gray-500);
-    }
-
-    .btn-close:hover {
-      color: var(--gray-700);
-    }
-
-    .error-message {
-      color: var(--danger);
-      margin-top: 1rem;
-      font-size: 0.875rem;
-    }
-
-    .form-actions {
-      display: flex;
-      gap: 1rem;
-      margin-top: 1rem;
-    }
-
-    @media (max-width: 1024px) {
-      .charts-container {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    @media (max-width: 768px) {
-      .app-container {
-        padding: 1rem;
-      }
-
-      .form-grid,
-      .filters-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .span-2 {
-        grid-column: span 1;
-      }
-    }
-  </style>
   <script>
     // Firebase Configuration
     const firebaseConfig = {
@@ -759,7 +698,7 @@
       appId: "1:622910803459:web:9761b015edc7b3f98a4836",
       measurementId: "G-Q9XBRDQL7V"
     };
-
+    
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const database = firebase.database();
@@ -803,9 +742,8 @@
     function handleLogin() {
       const email = document.getElementById("login-email").value;
       const password = document.getElementById("login-password").value;
-
-      auth
-        .signInWithEmailAndPassword(email, password)
+      
+      auth.signInWithEmailAndPassword(email, password)
         .then((userCredential) => {
           document.getElementById("login-modal").style.display = "none";
           document.getElementById("app-container").style.display = "block";
@@ -819,9 +757,8 @@
     function handleSignup() {
       const email = document.getElementById("login-email").value;
       const password = document.getElementById("login-password").value;
-
-      auth
-        .createUserWithEmailAndPassword(email, password)
+      
+      auth.createUserWithEmailAndPassword(email, password)
         .then((userCredential) => {
           document.getElementById("login-modal").style.display = "none";
           document.getElementById("app-container").style.display = "block";
@@ -833,8 +770,7 @@
     }
 
     function handleLogout() {
-      auth
-        .signOut()
+      auth.signOut()
         .then(() => {
           document.getElementById("login-modal").style.display = "flex";
           document.getElementById("app-container").style.display = "none";
@@ -868,7 +804,7 @@
     function saveToFirebase() {
       const userId = auth.currentUser?.uid;
       if (!userId) return;
-
+      
       const userRef = database.ref("users/" + userId);
       userRef.set({
         people: state.people,
@@ -902,7 +838,7 @@
       if (e) e.preventDefault();
       const nameInput = document.getElementById("person-name");
       const name = nameInput?.value?.trim();
-
+      
       if (name) {
         const person = {
           id: generateId(),
@@ -923,7 +859,7 @@
     function updatePeopleList() {
       const peopleList = document.getElementById("people-list");
       if (!peopleList) return;
-
+      
       peopleList.innerHTML = "";
       state.people.forEach((person) => {
         const div = document.createElement("div");
@@ -939,12 +875,13 @@
     function showDeleteModal(personId) {
       const person = state.people.find((p) => p.id === personId);
       if (!person) return;
-
+      
       state.deletePersonId = personId;
       elements.deletePersonName.textContent = person.name;
       elements.deleteModal.classList.add("show");
       // Ensure no inline style interferes:
       elements.deleteModal.removeAttribute("style");
+      console.log("showDeleteModal called for person:", person);
     }
 
     function showPeopleModal() {
@@ -954,7 +891,6 @@
       document.getElementById("people-modal").classList.remove("show");
     }
 
-    // Updated hideDeleteModal to remove inline styles
     function hideDeleteModal() {
       elements.deleteModal.classList.remove("show");
       elements.deleteModal.removeAttribute("style");
@@ -963,12 +899,10 @@
 
     function confirmDeletePerson() {
       if (!state.deletePersonId) return;
-
-      state.transactions = state.transactions.filter(
-        (t) => t.personId !== state.deletePersonId
-      );
+      
+      state.transactions = state.transactions.filter((t) => t.personId !== state.deletePersonId);
       state.people = state.people.filter((p) => p.id !== state.deletePersonId);
-
+      
       updateUI();
       saveToFirebase();
       hideDeleteModal();
@@ -978,7 +912,7 @@
     function handleAddTransaction(e) {
       e.preventDefault();
       const form = e.target;
-
+      
       const transaction = {
         id: generateId(),
         personId: form.querySelector("#transaction-person")?.value,
@@ -989,19 +923,19 @@
         amount: parseFloat(form.querySelector("#transaction-amount")?.value || "0"),
         date: form.querySelector("#transaction-date")?.value
       };
-
+      
       if (validateTransaction(transaction)) {
         state.transactions.push(transaction);
         const filteredTransactions = applyCurrentFilters();
         updateTransactionList(filteredTransactions);
         updateSummary(filteredTransactions);
         form.reset();
-
+        
         const dateInput = form.querySelector("#transaction-date");
         if (dateInput) {
           dateInput.value = new Date().toISOString().split("T")[0];
         }
-
+        
         saveToFirebase();
       }
     }
@@ -1010,21 +944,18 @@
     function showEditTransactionModal(transactionId) {
       const transaction = state.transactions.find((t) => t.id === transactionId);
       if (!transaction) return;
-
+      
       // Populate edit modal with transaction details
       document.getElementById("edit-transaction-id").value = transaction.id;
       document.getElementById("edit-transaction-person").value = transaction.personId;
       document.getElementById("edit-transaction-type").value = transaction.type;
-      document.getElementById("edit-transaction-category").value =
-        transaction.category || "";
+      document.getElementById("edit-transaction-category").value = transaction.category || "";
       document.getElementById("edit-transaction-amount").value = transaction.amount;
-      document.getElementById("edit-transaction-vendor").value =
-        transaction.vendor || "";
+      document.getElementById("edit-transaction-vendor").value = transaction.vendor || "";
       document.getElementById("edit-transaction-date").value = transaction.date;
-      document.getElementById("edit-transaction-description").value =
-        transaction.description || "";
+      document.getElementById("edit-transaction-description").value = transaction.description || "";
       document.getElementById("edit-transaction-modal").classList.add("show");
-
+      
       // Populate person select
       const personSelect = document.getElementById("edit-transaction-person");
       personSelect.innerHTML = "";
@@ -1034,7 +965,7 @@
         option.textContent = person.name;
         personSelect.appendChild(option);
       });
-
+      
       // Show modal
       document.getElementById("edit-transaction-modal").style.display = "flex";
     }
@@ -1045,7 +976,7 @@
 
     function handleEditTransaction(e) {
       e.preventDefault();
-
+      
       const transaction = {
         id: document.getElementById("edit-transaction-id").value,
         personId: document.getElementById("edit-transaction-person").value,
@@ -1056,20 +987,20 @@
         amount: parseFloat(document.getElementById("edit-transaction-amount").value || "0"),
         date: document.getElementById("edit-transaction-date").value
       };
-
+      
       // Find and update the transaction in the state
       const index = state.transactions.findIndex((t) => t.id === transaction.id);
       if (index !== -1) {
         state.transactions[index] = transaction;
-
+        
         // Update UI
         const filteredTransactions = applyCurrentFilters();
         updateTransactionList(filteredTransactions);
         updateSummary(filteredTransactions);
-
+        
         // Save to Firebase
         saveToFirebase();
-
+        
         // Close modal
         closeEditTransactionModal();
       }
@@ -1085,10 +1016,11 @@
         saveToFirebase();
       }
     }
+
     // Filtering and UI Update Functions
     function updatePersonSelect() {
       if (!elements.personSelect) return;
-
+      
       elements.personSelect.innerHTML = "";
       state.people.forEach((person) => {
         const option = document.createElement("option");
@@ -1109,15 +1041,15 @@
     function applyDateFilter() {
       const startDate = document.getElementById("start-date").value;
       const endDate = document.getElementById("end-date").value;
-
+      
       if (!startDate || !endDate) {
         alert("Please select both start and end dates");
         return;
       }
-
+      
       state.currentFilters.startDate = new Date(startDate);
       state.currentFilters.endDate = new Date(endDate);
-
+      
       const filteredTransactions = applyCurrentFilters();
       updateTransactionList(filteredTransactions);
       updateSummary(filteredTransactions);
@@ -1127,10 +1059,10 @@
       document.getElementById("start-date").value = "";
       document.getElementById("end-date").value = "";
       document.getElementById("period-filter").value = "all";
-
+      
       state.currentFilters.startDate = null;
       state.currentFilters.endDate = null;
-
+      
       updateTransactionList(state.transactions);
       updateSummary(state.transactions);
     }
@@ -1141,7 +1073,7 @@
       let startDate = new Date();
       const startDateInput = document.getElementById("start-date");
       const endDateInput = document.getElementById("end-date");
-
+      
       switch (period) {
         case "daily":
           startDate = today;
@@ -1159,7 +1091,7 @@
           clearDateFilter();
           return;
       }
-
+      
       startDateInput.value = startDate.toISOString().split("T")[0];
       endDateInput.value = today.toISOString().split("T")[0];
       applyDateFilter();
@@ -1169,7 +1101,7 @@
       if (!state.currentFilters.startDate || !state.currentFilters.endDate) {
         return state.transactions;
       }
-
+      
       return state.transactions.filter((transaction) => {
         const transactionDate = new Date(transaction.date);
         return (
@@ -1181,22 +1113,22 @@
 
     function updateTransactionList(transactions = state.transactions) {
       if (!elements.transactionList) return;
-
+      
       elements.transactionList.innerHTML = "";
       const sortedTransactions = [...transactions].sort(
         (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
       );
-
+      
       sortedTransactions.forEach((transaction) => {
         const person = state.people.find((p) => p.id === transaction.personId);
         const div = document.createElement("div");
         div.className = `transaction-item ${transaction.type}`;
-
+        
         const formattedAmount = new Intl.NumberFormat("en-US", {
           style: "currency",
           currency: "USD"
         }).format(transaction.amount);
-
+        
         div.innerHTML = `
           <div class="transaction-info">
             <strong>${person?.name || "Unknown"}</strong>
@@ -1226,7 +1158,7 @@
 
     function updateSummary(transactions = state.transactions) {
       if (!elements.totalSummary) return;
-
+      
       const summary = state.people.map((person) => {
         const personTransactions = transactions.filter((t) => t.personId === person.id);
         const income = personTransactions
@@ -1242,12 +1174,12 @@
           balance: income - expenses
         };
       });
-
+      
       const formatter = new Intl.NumberFormat("en-US", {
         style: "currency",
         currency: "USD"
       });
-
+      
       elements.totalSummary.innerHTML = summary
         .map(
           (s) => `
@@ -1260,7 +1192,7 @@
       `
         )
         .join("");
-
+      
       updateCharts(summary);
     }
 
@@ -1268,7 +1200,7 @@
       if (charts.incomeExpense) {
         charts.incomeExpense.destroy();
       }
-
+      
       if (elements.incomeExpenseChart instanceof HTMLCanvasElement) {
         charts.incomeExpense = new Chart(elements.incomeExpenseChart, {
           type: "bar",
@@ -1311,11 +1243,11 @@
           }
         });
       }
-
+      
       if (charts.category) {
         charts.category.destroy();
       }
-
+      
       if (elements.categoryChart instanceof HTMLCanvasElement) {
         const categoryData = {};
         state.transactions.forEach((t) => {
@@ -1323,7 +1255,7 @@
             categoryData[t.category] = (categoryData[t.category] || 0) + t.amount;
           }
         });
-
+        
         charts.category = new Chart(elements.categoryChart, {
           type: "doughnut",
           data: {
@@ -1366,41 +1298,39 @@
       }
     }
 
-    // Event Listeners and Initialization
     document.addEventListener("DOMContentLoaded", () => {
       const dateInput = document.getElementById("transaction-date");
       if (dateInput) {
         const today = new Date().toISOString().split("T")[0];
         dateInput.value = today;
       }
-
+      
       const transactionForm = document.getElementById("transaction-form");
       const editTransactionForm = document.getElementById("edit-transaction-form");
       const applyFilterBtn = document.getElementById("apply-filter");
       const clearFilterBtn = document.getElementById("clear-filter");
       const periodFilter = document.getElementById("period-filter");
-
+      
       if (transactionForm) {
         transactionForm.addEventListener("submit", handleAddTransaction);
       }
-
+      
       if (editTransactionForm) {
         editTransactionForm.addEventListener("submit", handleEditTransaction);
       }
-
+      
       applyFilterBtn?.addEventListener("click", applyDateFilter);
       clearFilterBtn?.addEventListener("click", clearDateFilter);
       periodFilter?.addEventListener("change", handlePeriodChange);
-
+      
       elements.confirmDelete?.addEventListener("click", confirmDeletePerson);
       elements.cancelDelete?.addEventListener("click", hideDeleteModal);
     });
-
-    // Authentication state observer
+    
     auth.onAuthStateChanged((user) => {
       const loginModal = document.getElementById("login-modal");
       const appContainer = document.getElementById("app-container");
-
+      
       if (user) {
         loginModal.classList.remove("show");
         appContainer.style.display = "block";
@@ -1410,8 +1340,7 @@
         appContainer.style.display = "none";
       }
     });
-
-    // Expose functions to window for onclick handlers
+    
     window.handleLogin = handleLogin;
     window.handleSignup = handleSignup;
     window.handleLogout = handleLogout;
