@@ -333,7 +333,7 @@
       </section>
     </div>
 
-    <!-- Delete Confirmation Modal (now with both modal and confirm-delete-modal classes) -->
+    <!-- Delete Confirmation Modal (with both modal and confirm-delete-modal classes) -->
     <div id="delete-confirm-modal" class="modal confirm-delete-modal">
       <div class="modal-content">
         <h3>Confirm Delete</h3>
@@ -662,8 +662,9 @@
       gap: 1rem;
     }
 
+    /* UPDATED MODAL STYLES WITH !important */
     .modal {
-      display: none;
+      display: none !important;
       position: fixed;
       top: 0;
       left: 0;
@@ -676,11 +677,7 @@
     }
 
     .modal.show {
-      display: flex;
-    }
-
-    .confirm-delete-modal.show {
-      display: flex;
+      display: flex !important;
     }
 
     .modal-content {
@@ -945,7 +942,9 @@
       state.deletePersonId = personId;
       elements.deletePersonName.textContent = person.name;
       elements.deleteModal.classList.add("show");
-      elements.deleteModal.style.display = "flex";
+      // Even though CSS now forces display: none unless .show is added,
+      // we remove any inline style if present.
+      elements.deleteModal.style.display = "";
     }
 
     function showPeopleModal() {
@@ -955,10 +954,10 @@
       document.getElementById("people-modal").classList.remove("show");
     }
 
-    // Updated hideDeleteModal to also remove the inline display style
+    // Updated hideDeleteModal function to remove inline display style
     function hideDeleteModal() {
       elements.deleteModal.classList.remove("show");
-      elements.deleteModal.style.display = "none";
+      elements.deleteModal.style.display = "";
       state.deletePersonId = null;
     }
 
