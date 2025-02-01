@@ -159,6 +159,17 @@
                     <button onclick="showPeopleModal()" class="btn btn-primary">People Management</button>
                     <button onclick="handleLogout()" class="btn btn-outline">Logout</button>
                 </div>
+                <!-- Delete Confirmation Modal -->
+<div id="delete-confirm-modal" class="confirm-delete-modal">
+    <div class="modal-content">
+        <h3>Confirm Delete</h3>
+        <p>Are you sure you want to delete <span id="delete-person-name"></span>? This will also delete all associated transactions.</p>
+        <div class="modal-actions">
+            <button id="cancel-delete" class="btn btn-outline">Cancel</button>
+            <button id="confirm-delete" class="btn btn-danger">Delete</button>
+        </div>
+    </div>
+</div>
             </div>
         </header>
 
@@ -349,18 +360,6 @@
                 <div id="people-list" class="people-list">
                     <!-- People list will be populated here -->
                 </div>
-            </div>
-        </div>
-    </div>
-  
-    <!-- Delete Confirmation Modal -->
-    <div id="delete-confirm-modal" class="confirm-delete-modal">
-        <div class="modal-content">
-            <h3>Confirm Delete</h3>
-            <p>Are you sure you want to delete <span id="delete-person-name"></span>? This will also delete all associated transactions.</p>
-            <div class="modal-actions">
-                <button id="cancel-delete" class="btn btn-outline">Cancel</button>
-                <button id="confirm-delete" class="btn btn-danger">Delete</button>
             </div>
         </div>
     </div>
