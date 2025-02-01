@@ -151,199 +151,201 @@
         </div>
     </div>
     <!-- Main App Container (hidden until login) -->
-    <div id="app-container" class="app-container" style="display: none;">
-        <header class="app-header">
-            <div class="header-content">
-                <h1>Budget Tracker</h1>
-                <div class="header-actions">
-                    <button onclick="showPeopleModal()" class="btn btn-primary">People Management</button>
-                    <button onclick="handleLogout()" class="btn btn-outline">Logout</button>
-                </div>
-                <!-- Delete Confirmation Modal -->
-<div id="delete-confirm-modal" class="confirm-delete-modal">
-    <div class="modal-content">
-        <h3>Confirm Delete</h3>
-        <p>Are you sure you want to delete <span id="delete-person-name"></span>? This will also delete all associated transactions.</p>
-        <div class="modal-actions">
-            <button id="cancel-delete" class="btn btn-outline">Cancel</button>
-            <button id="confirm-delete" class="btn btn-danger">Delete</button>
-        </div>
-    </div>
-</div>
+    <!-- Main App Container (hidden until login) -->
+<div id="app-container" class="app-container" style="display: none;">
+    <header class="app-header">
+        <div class="header-content">
+            <h1>Budget Tracker</h1>
+            <div class="header-actions">
+                <button onclick="showPeopleModal()" class="btn btn-primary">People Management</button>
+                <button onclick="handleLogout()" class="btn btn-outline">Logout</button>
             </div>
-        </header>
+        </div>
+    </header>
 
-        <div class="content-grid">
-            <!-- Transaction Form -->
-            <section class="card transaction-section">
-                <div class="card-header">
-                    <h2>New Transaction</h2>
-                </div>
-                <div class="card-body">
-                    <form id="transaction-form">
-                        <div class="form-grid">
-                            <div class="form-group">
-                                <label>Person</label>
-                                <select id="transaction-person" required class="input-field"></select>
-                            </div>
-                            <div class="form-group">
-                                <label>Type</label>
-                                <select id="transaction-type" required class="input-field">
-                                    <option value="income">Income</option>
-                                    <option value="expense" selected>Expense</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>Category (Optional)</label>
-                                <select id="transaction-category" class="input-field">
-                                    <option value="">Select Category (Optional)</option>
-                                    <!-- Income Categories -->
-                                    <optgroup label="Income">
-                                        <option value="salary">Salary</option>
-                                        <option value="investment">Investment</option>
-                                        <option value="freelance">Freelance</option>
-                                        <option value="bonus">Bonus</option>
-                                        <option value="gifts">Gifts</option>
-                                        <option value="rental">Rental Income</option>
-                                        <option value="refunds">Refunds</option>
-                                        <option value="other_income">Other Income</option>
-                                    </optgroup>
-
-                                    <!-- Expense Categories -->
-                                    <optgroup label="Housing">
-                                        <option value="rent">Rent/Mortgage</option>
-                                        <option value="utilities">Utilities</option>
-                                        <option value="maintenance">Home Maintenance</option>
-                                        <option value="insurance">Home Insurance</option>
-                                    </optgroup>
-
-                                    <optgroup label="Geneal Expenses">
-                                        <option value="Paycheck Expenses">Paycheck Expense</option>
-                                    </optgroup>
-
-                                    <optgroup label="Transportation">
-                                        <option value="car_payment">Car Payment</option>
-                                        <option value="gas">Gas</option>
-                                        <option value="car_maintenance">Car Maintenance</option>
-                                        <option value="public_transport">Public Transport</option>
-                                        <option value="parking">Parking</option>
-                                    </optgroup>
-
-                                    <optgroup label="Food & Dining">
-                                        <option value="groceries">Groceries</option>
-                                        <option value="restaurants">Restaurants</option>
-                                        <option value="takeout">Takeout</option>
-                                        <option value="coffee">Coffee Shops</option>
-                                    </optgroup>
-
-                                    <optgroup label="Personal">
-                                        <option value="healthcare">Healthcare</option>
-                                        <option value="clothing">Clothing</option>
-                                        <option value="education">Education</option>
-                                        <option value="gym">Gym/Fitness</option>
-                                        <option value="entertainment">Entertainment</option>
-                                        <option value="subscriptions">Subscriptions</option>
-                                        <option value="personal_care">Personal Care</option>
-                                    </optgroup>
-
-                                    <optgroup label="Bills & Utilities">
-                                        <option value="phone">Phone</option>
-                                        <option value="internet">Internet</option>
-                                        <option value="streaming">Streaming Services</option>
-                                        <option value="insurance">Insurance</option>
-                                    </optgroup>
-
-                                    <optgroup label="Other">
-                                        <option value="gifts_given">Gifts Given</option>
-                                        <option value="donations">Donations</option>
-                                        <option value="taxes">Taxes</option>
-                                        <option value="other_expense">Other Expenses</option>
-                                    </optgroup>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>Amount</label>
-                                <input type="number" id="transaction-amount" step="0.01" min="0" required class="input-field">
-                            </div>
-                            <div class="form-group">
-                                <label>Vendor (Optional)</label>
-                                <input type="text" id="transaction-vendor" class="input-field">
-                            </div>
-                            <div class="form-group">
-                                <label>Date</label>
-                                <input type="date" id="transaction-date" required class="input-field">
-                            </div>
-                            <div class="form-group span-2">
-                                <label>Description (Optional)</label>
-                                <input type="text" id="transaction-description" class="input-field">
-                            </div>
-                        </div>
-                        <button type="submit" class="btn btn-primary btn-large">Add Transaction</button>
-                    </form>
-                </div>
-            </section>
-            <!-- Filters Section -->
-            <section class="card filters-section">
-                <div class="card-header">
-                    <h2>Filters</h2>
-                </div>
-                <div class="card-body">
-                    <div class="filters-grid">
+    <div class="content-grid">
+        <!-- Transaction Form -->
+        <section class="card transaction-section">
+            <div class="card-header">
+                <h2>New Transaction</h2>
+            </div>
+            <div class="card-body">
+                <form id="transaction-form">
+                    <div class="form-grid">
                         <div class="form-group">
-                            <label>Quick Filter</label>
-                            <select id="period-filter" class="input-field">
-                                <option value="all">All Time</option>
-                                <option value="daily">Today</option>
-                                <option value="weekly">This Week</option>
-                                <option value="monthly">This Month</option>
-                                <option value="yearly">This Year</option>
+                            <label>Person</label>
+                            <select id="transaction-person" required class="input-field"></select>
+                        </div>
+                        <div class="form-group">
+                            <label>Type</label>
+                            <select id="transaction-type" required class="input-field">
+                                <option value="income">Income</option>
+                                <option value="expense" selected>Expense</option>
                             </select>
                         </div>
                         <div class="form-group">
-                            <label>Start Date</label>
-                            <input type="date" id="start-date" class="input-field">
+                            <label>Category (Optional)</label>
+                            <select id="transaction-category" class="input-field">
+                                <option value="">Select Category (Optional)</option>
+                                <!-- Income Categories -->
+                                <optgroup label="Income">
+                                    <option value="salary">Salary</option>
+                                    <option value="investment">Investment</option>
+                                    <option value="freelance">Freelance</option>
+                                    <option value="bonus">Bonus</option>
+                                    <option value="gifts">Gifts</option>
+                                    <option value="rental">Rental Income</option>
+                                    <option value="refunds">Refunds</option>
+                                    <option value="other_income">Other Income</option>
+                                </optgroup>
+
+                                <!-- Expense Categories -->
+                                <optgroup label="Housing">
+                                    <option value="rent">Rent/Mortgage</option>
+                                    <option value="utilities">Utilities</option>
+                                    <option value="maintenance">Home Maintenance</option>
+                                    <option value="insurance">Home Insurance</option>
+                                </optgroup>
+
+                                <optgroup label="Geneal Expenses">
+                                    <option value="Paycheck Expenses">Paycheck Expense</option>
+                                </optgroup>
+
+                                <optgroup label="Transportation">
+                                    <option value="car_payment">Car Payment</option>
+                                    <option value="gas">Gas</option>
+                                    <option value="car_maintenance">Car Maintenance</option>
+                                    <option value="public_transport">Public Transport</option>
+                                    <option value="parking">Parking</option>
+                                </optgroup>
+
+                                <optgroup label="Food & Dining">
+                                    <option value="groceries">Groceries</option>
+                                    <option value="restaurants">Restaurants</option>
+                                    <option value="takeout">Takeout</option>
+                                    <option value="coffee">Coffee Shops</option>
+                                </optgroup>
+
+                                <optgroup label="Personal">
+                                    <option value="healthcare">Healthcare</option>
+                                    <option value="clothing">Clothing</option>
+                                    <option value="education">Education</option>
+                                    <option value="gym">Gym/Fitness</option>
+                                    <option value="entertainment">Entertainment</option>
+                                    <option value="subscriptions">Subscriptions</option>
+                                    <option value="personal_care">Personal Care</option>
+                                </optgroup>
+
+                                <optgroup label="Bills & Utilities">
+                                    <option value="phone">Phone</option>
+                                    <option value="internet">Internet</option>
+                                    <option value="streaming">Streaming Services</option>
+                                    <option value="insurance">Insurance</option>
+                                </optgroup>
+
+                                <optgroup label="Other">
+                                    <option value="gifts_given">Gifts Given</option>
+                                    <option value="donations">Donations</option>
+                                    <option value="taxes">Taxes</option>
+                                    <option value="other_expense">Other Expenses</option>
+                                </optgroup>
+                            </select>
                         </div>
                         <div class="form-group">
-                            <label>End Date</label>
-                            <input type="date" id="end-date" class="input-field">
+                            <label>Amount</label>
+                            <input type="number" id="transaction-amount" step="0.01" min="0" required class="input-field">
                         </div>
-                        <div class="filter-actions">
-                            <button id="apply-filter" class="btn btn-secondary">Apply</button>
-                            <button id="clear-filter" class="btn btn-outline">Clear</button>
+                        <div class="form-group">
+                            <label>Vendor (Optional)</label>
+                            <input type="text" id="transaction-vendor" class="input-field">
                         </div>
-                    </div>
-                </div>
-            </section>
-  
-            <!-- Summary Section -->
-            <section class="card summary-section">
-                <div class="card-header">
-                    <h2>Summary</h2>
-                </div>
-                <div class="card-body">
-                    <div id="total-summary" class="summary-grid"></div>
-                    <div class="charts-container">
-                        <div class="chart-wrapper">
-                            <canvas id="income-expense-chart"></canvas>
+                        <div class="form-group">
+                            <label>Date</label>
+                            <input type="date" id="transaction-date" required class="input-field">
                         </div>
-                        <div class="chart-wrapper">
-                            <canvas id="category-chart"></canvas>
+                        <div class="form-group span-2">
+                            <label>Description (Optional)</label>
+                            <input type="text" id="transaction-description" class="input-field">
                         </div>
                     </div>
+                    <button type="submit" class="btn btn-primary btn-large">Add Transaction</button>
+                </form>
+            </div>
+        </section>
+        <!-- Filters Section -->
+        <section class="card filters-section">
+            <div class="card-header">
+                <h2>Filters</h2>
+            </div>
+            <div class="card-body">
+                <div class="filters-grid">
+                    <div class="form-group">
+                        <label>Quick Filter</label>
+                        <select id="period-filter" class="input-field">
+                            <option value="all">All Time</option>
+                            <option value="daily">Today</option>
+                            <option value="weekly">This Week</option>
+                            <option value="monthly">This Month</option>
+                            <option value="yearly">This Year</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Start Date</label>
+                        <input type="date" id="start-date" class="input-field">
+                    </div>
+                    <div class="form-group">
+                        <label>End Date</label>
+                        <input type="date" id="end-date" class="input-field">
+                    </div>
+                    <div class="filter-actions">
+                        <button id="apply-filter" class="btn btn-secondary">Apply</button>
+                        <button id="clear-filter" class="btn btn-outline">Clear</button>
+                    </div>
                 </div>
-            </section>
-  
-            <!-- Transactions Section -->
-            <section class="card transactions-section">
-                <div class="card-header">
-                    <h2>Recent Transactions</h2>
+            </div>
+        </section>
+
+        <!-- Summary Section -->
+        <section class="card summary-section">
+            <div class="card-header">
+                <h2>Summary</h2>
+            </div>
+            <div class="card-body">
+                <div id="total-summary" class="summary-grid"></div>
+                <div class="charts-container">
+                    <div class="chart-wrapper">
+                        <canvas id="income-expense-chart"></canvas>
+                    </div>
+                    <div class="chart-wrapper">
+                        <canvas id="category-chart"></canvas>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <div id="transaction-list" class="transaction-list"></div>
-                </div>
-            </section>
+            </div>
+        </section>
+
+        <!-- Transactions Section -->
+        <section class="card transactions-section">
+            <div class="card-header">
+                <h2>Recent Transactions</h2>
+            </div>
+            <div class="card-body">
+                <div id="transaction-list" class="transaction-list"></div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Delete Confirmation Modal moved here, after content-grid -->
+    <div id="delete-confirm-modal" class="confirm-delete-modal">
+        <div class="modal-content">
+            <h3>Confirm Delete</h3>
+            <p>Are you sure you want to delete <span id="delete-person-name"></span>? This will also delete all associated transactions.</p>
+            <div class="modal-actions">
+                <button id="cancel-delete" class="btn btn-outline">Cancel</button>
+                <button id="confirm-delete" class="btn btn-danger">Delete</button>
+            </div>
         </div>
     </div>
+</div>
   
     <!-- People Management Modal -->
     <div id="people-modal" class="modal">
@@ -675,21 +677,21 @@
         }
 
         .confirm-delete-modal {
-        display: none; /* Hide by default */
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0, 0, 0, 0.5);
-        align-items: center;
-        justify-content: center;
-        z-index: 1000;
-    }
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
 
-    .confirm-delete-modal.show {
-    display: flex; /* Only show when 'show' class is added */
-    }
+.confirm-delete-modal.show {
+    display: flex;
+}
 
         .modal-content {
             background: white;
