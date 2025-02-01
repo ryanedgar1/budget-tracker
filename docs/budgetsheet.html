@@ -162,23 +162,42 @@
         expenses: []
       };
       
+      // Save income data
       incomeTableBody.querySelectorAll('tr').forEach(row => {
-        data.incomes.push({
-          name: row.querySelector('.incomeName').value,
-          amount: row.querySelector('.incomeAmount').value,
-          frequency: row.querySelector('.incomeFrequency').value
-        });
+        const nameInput = row.querySelector('.incomeName');
+        const amountInput = row.querySelector('.incomeAmount');
+        const frequencySelect = row.querySelector('.incomeFrequency');
+        
+        // Only save if at least one field has data
+        if (nameInput?.value || amountInput?.value) {
+          data.incomes.push({
+            name: nameInput?.value || '',
+            amount: amountInput?.value || '',
+            frequency: frequencySelect?.value || 'monthly'
+          });
+        }
       });
       
+      // Save expense data
       expenseTableBody.querySelectorAll('tr').forEach(row => {
-        data.expenses.push({
-          name: row.querySelector('.expenseName').value,
-          total: row.querySelector('.totalExpense').value,
-          portion: row.querySelector('.yourPortion').value
-        });
+        const nameInput = row.querySelector('.expenseName');
+        const totalInput = row.querySelector('.totalExpense');
+        const portionInput = row.querySelector('.yourPortion');
+        
+        // Only save if at least one field has data
+        if (nameInput?.value || totalInput?.value || portionInput?.value) {
+          data.expenses.push({
+            name: nameInput?.value || '',
+            total: totalInput?.value || '',
+            portion: portionInput?.value || ''
+          });
+        }
       });
       
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      // Save to localStorage if we have data
+      if (data.incomes.length > 0 || data.expenses.length > 0) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      }
     }
     
     function clearAllData() {
@@ -237,12 +256,21 @@
       
       incomeTableBody.appendChild(row);
       
-      // Set the frequency select value
-      row.querySelector('.incomeFrequency').value = inputs.frequency;
+      // Set the frequency select value after a short delay to ensure the element is in the DOM
+      setTimeout(() => {
+        const frequencySelect = row.querySelector('.incomeFrequency');
+        if (frequencySelect) {
+          frequencySelect.value = inputs.frequency;
+        }
+      }, 0);
       
       // Add input event listeners
       row.querySelectorAll('input, select').forEach(input => {
         input.addEventListener('input', () => {
+          calculateBudget();
+          saveData();
+        });
+        input.addEventListener('change', () => {
           calculateBudget();
           saveData();
         });
