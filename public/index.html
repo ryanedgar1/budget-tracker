@@ -333,8 +333,8 @@
         </section>
     </div>
 
-    <!-- Delete Confirmation Modal moved here, after content-grid -->
-    <div id="delete-confirm-modal" class="confirm-delete-modal">
+    <!-- Delete Confirmation Modal (now with both modal and confirm-delete-modal classes) -->
+    <div id="delete-confirm-modal" class="modal confirm-delete-modal">
         <div class="modal-content">
             <h3>Confirm Delete</h3>
             <p>Are you sure you want to delete <span id="delete-person-name"></span>? This will also delete all associated transactions.</p>
@@ -663,25 +663,25 @@
         }
 
         .modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-}
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
 
-.modal.show {
-    display: flex;
-}
+        .modal.show {
+            display: flex;
+        }
 
-.confirm-delete-modal.show {
-    display: flex;
-}
+        .confirm-delete-modal.show {
+            display: flex;
+        }
 
         .modal-content {
             background: white;
@@ -935,27 +935,27 @@
         }
 
         function showDeleteModal(personId) {
-    const person = state.people.find(p => p.id === personId);
-    if (!person) return;
+            const person = state.people.find(p => p.id === personId);
+            if (!person) return;
 
-    state.deletePersonId = personId;
-    elements.deletePersonName.textContent = person.name;
-    elements.deleteModal.classList.add('show');
-    elements.deleteModal.style.display = 'flex';
-}
+            state.deletePersonId = personId;
+            elements.deletePersonName.textContent = person.name;
+            elements.deleteModal.classList.add('show');
+            elements.deleteModal.style.display = 'flex';
+        }
 
-function showPeopleModal() {
-    document.getElementById('people-modal').classList.add('show');
-}
-function hidePeopleModal() {
-    document.getElementById('people-modal').classList.remove('show');
-}
+        function showPeopleModal() {
+            document.getElementById('people-modal').classList.add('show');
+        }
+        function hidePeopleModal() {
+            document.getElementById('people-modal').classList.remove('show');
+        }
 
 
-function hideDeleteModal() {
-    elements.deleteModal.classList.remove('show');
-    state.deletePersonId = null;
-}
+        function hideDeleteModal() {
+            elements.deleteModal.classList.remove('show');
+            state.deletePersonId = null;
+        }
 
         function confirmDeletePerson() {
             if (!state.deletePersonId) return;
@@ -1031,8 +1031,8 @@ function hideDeleteModal() {
         }
 
         function closeEditTransactionModal() {
-    document.getElementById('edit-transaction-modal').classList.remove('show');
-}
+            document.getElementById('edit-transaction-modal').classList.remove('show');
+        }
 
         function handleEditTransaction(e) {
             e.preventDefault();
@@ -1380,18 +1380,18 @@ function hideDeleteModal() {
 
         // Authentication state observer
         auth.onAuthStateChanged((user) => {
-    const loginModal = document.getElementById('login-modal');
-    const appContainer = document.getElementById('app-container');
-    
-    if (user) {
-        loginModal.classList.remove('show');
-        appContainer.style.display = 'block';
-        loadUserData(user.uid);
-    } else {
-        loginModal.classList.add('show');
-        appContainer.style.display = 'none';
-    }
-});
+            const loginModal = document.getElementById('login-modal');
+            const appContainer = document.getElementById('app-container');
+            
+            if (user) {
+                loginModal.classList.remove('show');
+                appContainer.style.display = 'block';
+                loadUserData(user.uid);
+            } else {
+                loginModal.classList.add('show');
+                appContainer.style.display = 'none';
+            }
+        });
 
         // Expose functions to window for onclick handlers
         window.handleLogin = handleLogin;
