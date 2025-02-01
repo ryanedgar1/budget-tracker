@@ -663,19 +663,6 @@
         }
 
         .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-        }
-
-        .confirm-delete-modal {
     display: none;
     position: fixed;
     top: 0;
@@ -686,6 +673,10 @@
     align-items: center;
     justify-content: center;
     z-index: 1000;
+}
+
+.modal.show {
+    display: flex;
 }
 
 .confirm-delete-modal.show {
@@ -953,17 +944,16 @@
     elements.deleteModal.style.display = 'flex';
 }
 
-        function showPeopleModal() {
-    document.getElementById('people-modal').style.display = 'flex';
-        }
+function showPeopleModal() {
+    document.getElementById('people-modal').classList.add('show');
+}
+function hidePeopleModal() {
+    document.getElementById('people-modal').classList.remove('show');
+}
 
-        function hidePeopleModal() {
-    document.getElementById('people-modal').style.display = 'none';
-        }
 
-        function hideDeleteModal() {
+function hideDeleteModal() {
     elements.deleteModal.classList.remove('show');
-    elements.deleteModal.style.display = 'none';
     state.deletePersonId = null;
 }
 
@@ -1024,6 +1014,7 @@
             document.getElementById('edit-transaction-vendor').value = transaction.vendor || '';
             document.getElementById('edit-transaction-date').value = transaction.date;
             document.getElementById('edit-transaction-description').value = transaction.description || '';
+            document.getElementById('edit-transaction-modal').classList.add('show');
 
             // Populate person select
             const personSelect = document.getElementById('edit-transaction-person');
@@ -1040,8 +1031,8 @@
         }
 
         function closeEditTransactionModal() {
-            document.getElementById('edit-transaction-modal').style.display = 'none';
-        }
+    document.getElementById('edit-transaction-modal').classList.remove('show');
+}
 
         function handleEditTransaction(e) {
             e.preventDefault();
@@ -1389,15 +1380,18 @@
 
         // Authentication state observer
         auth.onAuthStateChanged((user) => {
-            if (user) {
-                document.getElementById('login-modal').style.display = 'none';
-                document.getElementById('app-container').style.display = 'block';
-                loadUserData(user.uid);
-            } else {
-                document.getElementById('login-modal').style.display = 'flex';
-                document.getElementById('app-container').style.display = 'none';
-            }
-        });
+    const loginModal = document.getElementById('login-modal');
+    const appContainer = document.getElementById('app-container');
+    
+    if (user) {
+        loginModal.classList.remove('show');
+        appContainer.style.display = 'block';
+        loadUserData(user.uid);
+    } else {
+        loginModal.classList.add('show');
+        appContainer.style.display = 'none';
+    }
+});
 
         // Expose functions to window for onclick handlers
         window.handleLogin = handleLogin;
