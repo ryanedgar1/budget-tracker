@@ -3,180 +3,233 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Budget Spreadsheet</title>
+  <title>Modern Budget Tracker</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.js"></script>
   <style>
-    /* Basic styling for our budget spreadsheet */
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f8fafc;
-      margin: 20px;
-      color: #333;
+    /* Custom animations */
+    .fade-in {
+      animation: fadeIn 0.3s ease-in;
     }
-    h1, h2 {
-      color: #1e293b;
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
-    form {
-      margin-bottom: 20px;
+    /* Custom input styling */
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
     }
-    input, select, button {
-      padding: 8px;
-      margin: 5px;
-      font-size: 1rem;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 20px;
-    }
-    th, td {
-      border: 1px solid #ccc;
-      padding: 8px;
-      text-align: left;
-    }
-    th {
-      background-color: #f1f5f9;
-    }
-    button {
-      cursor: pointer;
+    .input-focus:focus {
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
     }
   </style>
 </head>
-<body>
-  <h1>Budget Spreadsheet</h1>
-  
-  <!-- Form for paycheck details -->
-  <form id="budgetForm">
-    <label>
-      Paycheck Amount:
-      <input type="number" id="paycheckAmount" step="0.01" placeholder="e.g., 2209.22" required>
-    </label>
-    <label>
-      Pay Frequency:
-      <select id="payFrequency" required>
-        <option value="weekly">Weekly (4 per month)</option>
-        <option value="twiceWeek">Twice a week (8 per month)</option>
-        <option value="everyOtherWeek">Every other week (2 per month)</option>
-        <option value="monthly">Monthly (1 per month)</option>
-      </select>
-    </label>
-    <button type="button" onclick="addExpenseRow()">Add Expense</button>
-  </form>
-  
-  <!-- Table to list expense items -->
-  <table id="expenseTable">
-    <thead>
-      <tr>
-        <th>Expense Name</th>
-        <th>Total Expense Amount</th>
-        <th>Your Portion (%)</th>
-        <th>Your Expense (Monthly)</th>
-        <th>Your Expense (Per Paycheck)</th>
-        <th>Action</th>
-      </tr>
-    </thead>
-    <tbody>
-      <!-- Expense rows will be dynamically added here -->
-    </tbody>
-  </table>
-  
-  <!-- Section to display overall results -->
-  <h2>Results</h2>
-  <p>
-    <strong>Your Paycheck:</strong> <span id="calculatedPaycheck">$0.00</span>
-  </p>
-  <p>
-    <strong>Your Monthly Income:</strong> <span id="monthlyIncome">$0.00</span>
-  </p>
-  <p>
-    <strong>Leftover Per Paycheck:</strong> <span id="leftoverPerPaycheck">$0.00</span>
-  </p>
-  
+<body class="bg-gray-50 min-h-screen">
+  <div class="container mx-auto px-4 py-8 max-w-5xl">
+    <h1 class="text-3xl font-bold text-gray-800 mb-8">Modern Budget Tracker</h1>
+    
+    <!-- Main input form -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+      <form id="budgetForm" class="grid md:grid-cols-3 gap-6">
+        <div class="space-y-2">
+          <label class="block text-sm font-medium text-gray-700">
+            Paycheck Amount
+          </label>
+          <div class="relative">
+            <span class="absolute left-3 top-2 text-gray-500">$</span>
+            <input type="number" 
+                   id="paycheckAmount" 
+                   class="pl-8 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                   step="0.01" 
+                   placeholder="0.00" 
+                   required>
+          </div>
+        </div>
+        
+        <div class="space-y-2">
+          <label class="block text-sm font-medium text-gray-700">
+            Pay Frequency
+          </label>
+          <select id="payFrequency" 
+                  class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                  required>
+            <option value="weekly">Weekly (4 per month)</option>
+            <option value="twiceWeek">Twice a week (8 per month)</option>
+            <option value="everyOtherWeek">Every other week (2 per month)</option>
+            <option value="monthly">Monthly (1 per month)</option>
+          </select>
+        </div>
+        
+        <div class="flex items-end">
+          <button type="button" 
+                  onclick="addExpenseRow()"
+                  class="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-md transition duration-200">
+            Add Expense
+          </button>
+        </div>
+      </form>
+    </div>
+    
+    <!-- Expenses table -->
+    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+      <div class="overflow-x-auto">
+        <table id="expenseTable" class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Expense Name</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Amount</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Your Portion (%)</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Monthly</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Per Paycheck</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <!-- Expense rows will be added here -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+    
+    <!-- Results section -->
+    <div class="grid md:grid-cols-3 gap-6 mt-8">
+      <div class="bg-white rounded-lg shadow-md p-6">
+        <h3 class="text-sm font-medium text-gray-500 uppercase mb-2">Your Paycheck</h3>
+        <p id="calculatedPaycheck" class="text-2xl font-bold text-gray-800">$0.00</p>
+      </div>
+      
+      <div class="bg-white rounded-lg shadow-md p-6">
+        <h3 class="text-sm font-medium text-gray-500 uppercase mb-2">Monthly Income</h3>
+        <p id="monthlyIncome" class="text-2xl font-bold text-gray-800">$0.00</p>
+      </div>
+      
+      <div class="bg-white rounded-lg shadow-md p-6">
+        <h3 class="text-sm font-medium text-gray-500 uppercase mb-2">Leftover Per Paycheck</h3>
+        <p id="leftoverPerPaycheck" class="text-2xl font-bold text-gray-800">$0.00</p>
+      </div>
+    </div>
+  </div>
+
   <script>
-    // Reference to the table body for expenses
     const expenseTableBody = document.querySelector('#expenseTable tbody');
     
-    // Function to add a new expense row
     function addExpenseRow() {
       const row = document.createElement('tr');
+      row.className = 'fade-in';
+      
+      const inputs = {
+        name: '',
+        total: '',
+        portion: ''
+      };
+      
       row.innerHTML = `
-        <td>
-          <input type="text" class="expenseName" placeholder="Expense name" required>
+        <td class="px-6 py-4 whitespace-nowrap">
+          <input type="text" 
+                 class="expenseName w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" 
+                 value="${inputs.name}"
+                 placeholder="Enter expense name">
         </td>
-        <td>
-          <input type="number" class="totalExpense" step="0.01" placeholder="Total expense" required>
+        <td class="px-6 py-4 whitespace-nowrap">
+          <div class="relative">
+            <span class="absolute left-3 top-2 text-gray-500">$</span>
+            <input type="number" 
+                   class="totalExpense pl-8 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" 
+                   value="${inputs.total}"
+                   step="0.01" 
+                   placeholder="0.00">
+          </div>
         </td>
-        <td>
-          <input type="number" class="yourPortion" step="0.01" placeholder="Your portion (%)" required>
+        <td class="px-6 py-4 whitespace-nowrap">
+          <div class="relative">
+            <input type="number" 
+                   class="yourPortion w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" 
+                   value="${inputs.portion}"
+                   step="0.01" 
+                   placeholder="0">
+            <span class="absolute right-3 top-2 text-gray-500">%</span>
+          </div>
         </td>
-        <td class="monthlyExpense">$0.00</td>
-        <td class="perPaycheckExpense">$0.00</td>
-        <td>
-          <button type="button" onclick="removeExpenseRow(this)">Remove</button>
+        <td class="px-6 py-4 whitespace-nowrap">
+          <span class="monthlyExpense text-sm text-gray-900">$0.00</span>
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap">
+          <span class="perPaycheckExpense text-sm text-gray-900">$0.00</span>
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+          <button onclick="removeExpenseRow(this)" 
+                  class="text-red-600 hover:text-red-900 mr-2">
+            Delete
+          </button>
         </td>
       `;
+      
       expenseTableBody.appendChild(row);
       
-      // Attach event listeners so that calculations update when inputs change
+      // Add input event listeners
       row.querySelectorAll('input').forEach(input => {
         input.addEventListener('input', calculateBudget);
       });
     }
     
-    // Function to remove an expense row
     function removeExpenseRow(button) {
       const row = button.closest('tr');
-      row.remove();
-      calculateBudget();
+      row.style.opacity = '0';
+      row.style.transform = 'translateY(10px)';
+      row.style.transition = 'all 0.3s ease-out';
+      
+      setTimeout(() => {
+        row.remove();
+        calculateBudget();
+      }, 300);
     }
     
-    // Determine the number of pay periods per month based on frequency
     function getPayPeriodCount() {
       const frequency = document.getElementById('payFrequency').value;
-      switch(frequency) {
-        case 'weekly': return 4;
-        case 'twiceWeek': return 8;
-        case 'everyOtherWeek': return 2;
-        case 'monthly': return 1;
-        default: return 4;
-      }
+      const counts = {
+        weekly: 4,
+        twiceWeek: 8,
+        everyOtherWeek: 2,
+        monthly: 1
+      };
+      return counts[frequency] || 4;
     }
     
-    // Function to perform all the budget calculations
     function calculateBudget() {
       const paycheckAmount = parseFloat(document.getElementById('paycheckAmount').value) || 0;
       const payPeriodCount = getPayPeriodCount();
       
       let totalYourMonthlyExpenses = 0;
       
-      // Process each expense row
-      const rows = expenseTableBody.querySelectorAll('tr');
-      rows.forEach(row => {
+      expenseTableBody.querySelectorAll('tr').forEach(row => {
         const totalExpense = parseFloat(row.querySelector('.totalExpense').value) || 0;
         const yourPortionPercent = parseFloat(row.querySelector('.yourPortion').value) || 0;
-        // Calculate your portion of the expense on a monthly basis
+        
         const yourMonthlyExpense = totalExpense * (yourPortionPercent / 100);
         totalYourMonthlyExpenses += yourMonthlyExpense;
         
-        // Calculate expense per paycheck
         const perPaycheckExpense = yourMonthlyExpense / payPeriodCount;
+        
         row.querySelector('.monthlyExpense').textContent = `$${yourMonthlyExpense.toFixed(2)}`;
         row.querySelector('.perPaycheckExpense').textContent = `$${perPaycheckExpense.toFixed(2)}`;
       });
       
-      // Calculate overall monthly income and leftover per paycheck
       const monthlyIncome = paycheckAmount * payPeriodCount;
       const totalExpensePerPaycheck = totalYourMonthlyExpenses / payPeriodCount;
       const leftoverPerPaycheck = paycheckAmount - totalExpensePerPaycheck;
       
-      // Update the result fields in the UI
       document.getElementById('calculatedPaycheck').textContent = `$${paycheckAmount.toFixed(2)}`;
       document.getElementById('monthlyIncome').textContent = `$${monthlyIncome.toFixed(2)}`;
       document.getElementById('leftoverPerPaycheck').textContent = `$${leftoverPerPaycheck.toFixed(2)}`;
     }
     
-    // Attach change listeners to the main form inputs
+    // Add event listeners to main form inputs
     document.getElementById('paycheckAmount').addEventListener('input', calculateBudget);
     document.getElementById('payFrequency').addEventListener('change', calculateBudget);
+    
+    // Add initial expense row
+    addExpenseRow();
   </script>
 </body>
 </html>
