@@ -269,14 +269,14 @@
     const auth = firebase.auth();
 
     // Check authentication state
-    auth.onAuthStateChanged(function(user) {
+    // Replace the existing auth.onAuthStateChanged in budgetsheet.html with this:
+auth.onAuthStateChanged(function(user) {
   if (user) {
+    // User is signed in, load their data
     loadUserData(user.uid);
-    document.getElementById("login-modal").style.display = "none";
-    document.getElementById("app-container").style.display = "block";
   } else {
-    document.getElementById("login-modal").style.display = "flex";
-    document.getElementById("app-container").style.display = "none";
+    // No user is signed in, redirect to homepage for login
+    window.location.href = 'index.html';
   }
 });
 
