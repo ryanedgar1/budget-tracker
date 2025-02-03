@@ -3,180 +3,307 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Budget Spreadsheet</title>
+  <title>Budget Tracker</title>
   <style>
-    /* Basic styling for our budget spreadsheet */
     body {
       font-family: Arial, sans-serif;
       background-color: #f8fafc;
       margin: 20px;
       color: #333;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
     }
-    h1, h2 {
-      color: #1e293b;
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
     }
-    form {
+
+    .back-button {
+      background-color: #3b82f6;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 4px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .reset-button {
+      color: #ef4444;
+      border: none;
+      background: none;
+      cursor: pointer;
+    }
+
+    .section {
+      background: white;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       margin-bottom: 20px;
     }
-    input, select, button {
-      padding: 8px;
-      margin: 5px;
-      font-size: 1rem;
+
+    .add-button {
+      background-color: #22c55e;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
     }
+
     table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 20px;
     }
-    th, td {
-      border: 1px solid #ccc;
-      padding: 8px;
-      text-align: left;
-    }
+
     th {
-      background-color: #f1f5f9;
+      background-color: #f8fafc;
+      padding: 12px;
+      text-align: left;
+      font-weight: 500;
+      color: #64748b;
+      border-bottom: 1px solid #e2e8f0;
     }
-    button {
+
+    td {
+      padding: 12px;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .delete-button {
+      color: #ef4444;
+      border: none;
+      background: none;
       cursor: pointer;
+    }
+
+    input, select {
+      padding: 8px;
+      border: 1px solid #e2e8f0;
+      border-radius: 4px;
+      margin-right: 8px;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      margin-top: 30px;
+    }
+
+    .summary-card {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .card-title {
+      color: #64748b;
+      font-size: 0.875rem;
+      margin-bottom: 8px;
+    }
+
+    .card-amount {
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+
+    .amount-green { color: #22c55e; }
+    .amount-red { color: #ef4444; }
+    .amount-blue { color: #3b82f6; }
+    .amount-purple { color: #a855f7; }
+
+    .dollar-sign {
+      display: inline-block;
+      width: 20px;
     }
   </style>
 </head>
 <body>
-  <h1>Budget Spreadsheet</h1>
-  
-  <!-- Form for paycheck details -->
-  <form id="budgetForm">
-    <label>
-      Paycheck Amount:
-      <input type="number" id="paycheckAmount" step="0.01" placeholder="e.g., 2209.22" required>
-    </label>
-    <label>
-      Pay Frequency:
-      <select id="payFrequency" required>
-        <option value="weekly">Weekly (4 per month)</option>
-        <option value="twiceWeek">Twice a week (8 per month)</option>
-        <option value="everyOtherWeek">Every other week (2 per month)</option>
-        <option value="monthly">Monthly (1 per month)</option>
-      </select>
-    </label>
-    <button type="button" onclick="addExpenseRow()">Add Expense</button>
-  </form>
-  
-  <!-- Table to list expense items -->
-  <table id="expenseTable">
-    <thead>
-      <tr>
-        <th>Expense Name</th>
-        <th>Total Expense Amount</th>
-        <th>Your Portion (%)</th>
-        <th>Your Expense (Monthly)</th>
-        <th>Your Expense (Per Paycheck)</th>
-        <th>Action</th>
-      </tr>
-    </thead>
-    <tbody>
-      <!-- Expense rows will be dynamically added here -->
-    </tbody>
-  </table>
-  
-  <!-- Section to display overall results -->
-  <h2>Results</h2>
-  <p>
-    <strong>Your Paycheck:</strong> <span id="calculatedPaycheck">$0.00</span>
-  </p>
-  <p>
-    <strong>Your Monthly Income:</strong> <span id="monthlyIncome">$0.00</span>
-  </p>
-  <p>
-    <strong>Leftover Per Paycheck:</strong> <span id="leftoverPerPaycheck">$0.00</span>
-  </p>
-  
+  <div class="header">
+    <div>
+      <a href="#" class="back-button">Back to Home</a>
+      <h1 style="display: inline-block; margin-left: 20px;">Budget Tracker</h1>
+    </div>
+    <button class="reset-button" onclick="resetAllData()">Reset All Data</button>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <h2>Income Sources</h2>
+      <button class="add-button" onclick="addIncomeSource()">Add Income Source</button>
+    </div>
+    <table id="incomeTable">
+      <thead>
+        <tr>
+          <th>SOURCE NAME</th>
+          <th>AMOUNT</th>
+          <th>FREQUENCY</th>
+          <th>MONTHLY TOTAL</th>
+          <th>ACTIONS</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <h2>Expenses</h2>
+      <button class="add-button" onclick="addExpenseRow()">Add Expense</button>
+    </div>
+    <table id="expenseTable">
+      <thead>
+        <tr>
+          <th>EXPENSE NAME</th>
+          <th>TOTAL AMOUNT</th>
+          <th>YOUR PORTION (%)</th>
+          <th>MONTHLY</th>
+          <th>PER PAYCHECK</th>
+          <th>ACTIONS</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <div class="summary-grid">
+    <div class="summary-card">
+      <div class="card-title">Total Monthly Income</div>
+      <div class="card-amount amount-green" id="totalMonthlyIncome">$14000.00</div>
+    </div>
+    <div class="summary-card">
+      <div class="card-title">Monthly Expenses</div>
+      <div class="card-amount amount-red" id="totalMonthlyExpenses">$2650.00</div>
+    </div>
+    <div class="summary-card">
+      <div class="card-title">Average Per Paycheck</div>
+      <div class="card-amount amount-blue" id="averagePerPaycheck">$7000.00</div>
+    </div>
+    <div class="summary-card">
+      <div class="card-title">Leftover Per Paycheck</div>
+      <div class="card-amount amount-purple" id="leftoverPerPaycheck">$5675.00</div>
+    </div>
+  </div>
+
   <script>
-    // Reference to the table body for expenses
-    const expenseTableBody = document.querySelector('#expenseTable tbody');
-    
-    // Function to add a new expense row
-    function addExpenseRow() {
+    // Income table functionality
+    function addIncomeSource() {
+      const tbody = document.querySelector('#incomeTable tbody');
       const row = document.createElement('tr');
       row.innerHTML = `
+        <td><input type="text" class="income-name" placeholder="Income source name"></td>
+        <td><span class="dollar-sign">$</span><input type="number" class="income-amount" step="0.01"></td>
         <td>
-          <input type="text" class="expenseName" placeholder="Expense name" required>
+          <select class="income-frequency">
+            <option value="monthly">Monthly (1 per month)</option>
+            <option value="everyOtherWeek">Every other week (2 per month)</option>
+            <option value="weekly">Weekly (4 per month)</option>
+            <option value="twiceWeek">Twice a week (8 per month)</option>
+          </select>
         </td>
-        <td>
-          <input type="number" class="totalExpense" step="0.01" placeholder="Total expense" required>
-        </td>
-        <td>
-          <input type="number" class="yourPortion" step="0.01" placeholder="Your portion (%)" required>
-        </td>
-        <td class="monthlyExpense">$0.00</td>
-        <td class="perPaycheckExpense">$0.00</td>
-        <td>
-          <button type="button" onclick="removeExpenseRow(this)">Remove</button>
-        </td>
+        <td class="monthly-total">$0.00</td>
+        <td><button class="delete-button" onclick="this.closest('tr').remove(); calculateTotals();">Delete</button></td>
       `;
-      expenseTableBody.appendChild(row);
-      
-      // Attach event listeners so that calculations update when inputs change
-      row.querySelectorAll('input').forEach(input => {
-        input.addEventListener('input', calculateBudget);
+      tbody.appendChild(row);
+      attachIncomeListeners(row);
+    }
+
+    function attachIncomeListeners(row) {
+      const inputs = row.querySelectorAll('input, select');
+      inputs.forEach(input => {
+        input.addEventListener('change', calculateTotals);
+        input.addEventListener('input', calculateTotals);
       });
     }
-    
-    // Function to remove an expense row
-    function removeExpenseRow(button) {
-      const row = button.closest('tr');
-      row.remove();
-      calculateBudget();
+
+    // Expense table functionality
+    function addExpenseRow() {
+      const tbody = document.querySelector('#expenseTable tbody');
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td><input type="text" class="expense-name" placeholder="Expense name"></td>
+        <td><span class="dollar-sign">$</span><input type="number" class="expense-amount" step="0.01"></td>
+        <td><input type="number" class="expense-portion" step="0.01" value="100"><span>%</span></td>
+        <td class="monthly-expense">$0.00</td>
+        <td class="per-paycheck-expense">$0.00</td>
+        <td><button class="delete-button" onclick="this.closest('tr').remove(); calculateTotals();">Delete</button></td>
+      `;
+      tbody.appendChild(row);
+      attachExpenseListeners(row);
     }
-    
-    // Determine the number of pay periods per month based on frequency
-    function getPayPeriodCount() {
-      const frequency = document.getElementById('payFrequency').value;
-      switch(frequency) {
-        case 'weekly': return 4;
-        case 'twiceWeek': return 8;
-        case 'everyOtherWeek': return 2;
-        case 'monthly': return 1;
-        default: return 4;
+
+    function attachExpenseListeners(row) {
+      const inputs = row.querySelectorAll('input');
+      inputs.forEach(input => {
+        input.addEventListener('change', calculateTotals);
+        input.addEventListener('input', calculateTotals);
+      });
+    }
+
+    function calculateTotals() {
+      let totalMonthlyIncome = 0;
+      let totalMonthlyExpenses = 0;
+
+      // Calculate income
+      document.querySelectorAll('#incomeTable tbody tr').forEach(row => {
+        const amount = parseFloat(row.querySelector('.income-amount').value) || 0;
+        const frequency = row.querySelector('.income-frequency').value;
+        let monthlyAmount = amount;
+        
+        switch(frequency) {
+          case 'weekly': monthlyAmount *= 4; break;
+          case 'twiceWeek': monthlyAmount *= 8; break;
+          case 'everyOtherWeek': monthlyAmount *= 2; break;
+        }
+
+        row.querySelector('.monthly-total').textContent = `$${monthlyAmount.toFixed(2)}`;
+        totalMonthlyIncome += monthlyAmount;
+      });
+
+      // Calculate expenses
+      document.querySelectorAll('#expenseTable tbody tr').forEach(row => {
+        const amount = parseFloat(row.querySelector('.expense-amount').value) || 0;
+        const portion = parseFloat(row.querySelector('.expense-portion').value) || 0;
+        const monthlyExpense = amount * (portion / 100);
+        const perPaycheckExpense = monthlyExpense / 2; // Assuming bi-weekly pay
+
+        row.querySelector('.monthly-expense').textContent = `$${monthlyExpense.toFixed(2)}`;
+        row.querySelector('.per-paycheck-expense').textContent = `$${perPaycheckExpense.toFixed(2)}`;
+        totalMonthlyExpenses += monthlyExpense;
+      });
+
+      // Update summary cards
+      document.getElementById('totalMonthlyIncome').textContent = `$${totalMonthlyIncome.toFixed(2)}`;
+      document.getElementById('totalMonthlyExpenses').textContent = `$${totalMonthlyExpenses.toFixed(2)}`;
+      document.getElementById('averagePerPaycheck').textContent = `$${(totalMonthlyIncome / 2).toFixed(2)}`;
+      document.getElementById('leftoverPerPaycheck').textContent = `$${((totalMonthlyIncome - totalMonthlyExpenses) / 2).toFixed(2)}`;
+    }
+
+    function resetAllData() {
+      if (confirm('Are you sure you want to reset all data? This cannot be undone.')) {
+        document.querySelector('#incomeTable tbody').innerHTML = '';
+        document.querySelector('#expenseTable tbody').innerHTML = '';
+        calculateTotals();
       }
     }
-    
-    // Function to perform all the budget calculations
-    function calculateBudget() {
-      const paycheckAmount = parseFloat(document.getElementById('paycheckAmount').value) || 0;
-      const payPeriodCount = getPayPeriodCount();
-      
-      let totalYourMonthlyExpenses = 0;
-      
-      // Process each expense row
-      const rows = expenseTableBody.querySelectorAll('tr');
-      rows.forEach(row => {
-        const totalExpense = parseFloat(row.querySelector('.totalExpense').value) || 0;
-        const yourPortionPercent = parseFloat(row.querySelector('.yourPortion').value) || 0;
-        // Calculate your portion of the expense on a monthly basis
-        const yourMonthlyExpense = totalExpense * (yourPortionPercent / 100);
-        totalYourMonthlyExpenses += yourMonthlyExpense;
-        
-        // Calculate expense per paycheck
-        const perPaycheckExpense = yourMonthlyExpense / payPeriodCount;
-        row.querySelector('.monthlyExpense').textContent = `$${yourMonthlyExpense.toFixed(2)}`;
-        row.querySelector('.perPaycheckExpense').textContent = `$${perPaycheckExpense.toFixed(2)}`;
-      });
-      
-      // Calculate overall monthly income and leftover per paycheck
-      const monthlyIncome = paycheckAmount * payPeriodCount;
-      const totalExpensePerPaycheck = totalYourMonthlyExpenses / payPeriodCount;
-      const leftoverPerPaycheck = paycheckAmount - totalExpensePerPaycheck;
-      
-      // Update the result fields in the UI
-      document.getElementById('calculatedPaycheck').textContent = `$${paycheckAmount.toFixed(2)}`;
-      document.getElementById('monthlyIncome').textContent = `$${monthlyIncome.toFixed(2)}`;
-      document.getElementById('leftoverPerPaycheck').textContent = `$${leftoverPerPaycheck.toFixed(2)}`;
-    }
-    
-    // Attach change listeners to the main form inputs
-    document.getElementById('paycheckAmount').addEventListener('input', calculateBudget);
-    document.getElementById('payFrequency').addEventListener('change', calculateBudget);
+
+    // Initialize with empty state
+    calculateTotals();
   </script>
 </body>
 </html>
