@@ -270,13 +270,15 @@
 
     // Check authentication state
     auth.onAuthStateChanged(function(user) {
-      if (user) {
-        loadUserData(user.uid);
-      } else {
-        // Redirect to login page or handle unauthorized access
-        window.location.href = '/login.html';
-      }
-    });
+  if (user) {
+    loadUserData(user.uid);
+    document.getElementById("login-modal").style.display = "none";
+    document.getElementById("app-container").style.display = "block";
+  } else {
+    document.getElementById("login-modal").style.display = "flex";
+    document.getElementById("app-container").style.display = "none";
+  }
+});
 
     // Function to add a new income source row
     function addIncomeSource() {
