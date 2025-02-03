@@ -5,31 +5,27 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Budget Tracker</title>
 
-  <!-- Add Firebase SDK -->
+  <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
 
-  <!-- Your original styles here -->
+  <!-- Your CSS styles -->
   <style>
-    /* All your existing styles remain unchanged */
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, sans-serif;
       background-color: #f8fafc;
-      margin: 0;
       padding: 20px;
       color: #333;
       max-width: 1200px;
       margin: 0 auto;
     }
-
     .header {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 30px;
     }
-
     .back-button {
       background-color: #3b82f6;
       color: white;
@@ -41,7 +37,6 @@
       align-items: center;
       font-weight: 500;
     }
-
     .reset-button {
       color: #ef4444;
       border: none;
@@ -49,7 +44,6 @@
       cursor: pointer;
       font-weight: 500;
     }
-
     h1 {
       color: #1e293b;
       font-weight: 500;
@@ -58,7 +52,6 @@
       margin-left: 20px;
       display: inline-block;
     }
-
     .section {
       background: white;
       border-radius: 8px;
@@ -66,21 +59,18 @@
       margin-bottom: 24px;
       box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     }
-
     .section-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 20px;
     }
-
     .section-header h2 {
       font-weight: 500;
       font-size: 18px;
       margin: 0;
       color: #1e293b;
     }
-
     .add-button {
       background-color: #22c55e;
       color: white;
@@ -90,12 +80,10 @@
       cursor: pointer;
       font-weight: 500;
     }
-
     table {
       width: 100%;
       border-collapse: collapse;
     }
-
     th {
       text-transform: uppercase;
       font-weight: 500;
@@ -106,12 +94,10 @@
       border-bottom: 1px solid #e2e8f0;
       background: none;
     }
-
     td {
       padding: 12px;
       border-bottom: 1px solid #e2e8f0;
     }
-
     input, select {
       width: 100%;
       padding: 8px 12px;
@@ -120,15 +106,12 @@
       font-size: 14px;
       color: #1e293b;
     }
-
     select {
       background-color: white;
     }
-
     .amount-input {
       position: relative;
     }
-
     .amount-input span {
       position: absolute;
       left: 12px;
@@ -136,11 +119,9 @@
       transform: translateY(-50%);
       color: #64748b;
     }
-
     .amount-input input {
       padding-left: 24px;
     }
-
     .delete-button {
       color: #ef4444;
       border: none;
@@ -148,32 +129,27 @@
       cursor: pointer;
       font-weight: 500;
     }
-
     .summary-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       gap: 20px;
     }
-
     .summary-card {
       background: white;
       padding: 20px;
       border-radius: 8px;
       box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     }
-
     .card-title {
       color: #64748b;
       font-size: 14px;
       margin-bottom: 8px;
       font-weight: 500;
     }
-
     .card-amount {
       font-size: 24px;
       font-weight: 600;
     }
-
     .amount-green { color: #22c55e; }
     .amount-red { color: #ef4444; }
     .amount-blue { color: #3b82f6; }
@@ -181,80 +157,84 @@
   </style>
 </head>
 <body>
-  <div class="header">
-    <div>
-      <a href="index.html" class="back-button">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;">
-          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-          <polyline points="9 22 9 12 15 12 15 22"></polyline>
-        </svg>
-        Back to Home
-      </a>
-      <h1>Budget Tracker</h1>
+  <!-- Wrap the main UI in a container that is hidden until auth is confirmed -->
+  <div id="main-content" style="display: none;">
+    <div class="header">
+      <div>
+        <a href="index.html" class="back-button">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+          </svg>
+          Back to Home
+        </a>
+        <h1>Budget Tracker</h1>
+      </div>
+      <button class="reset-button" onclick="resetAllData()">Reset All Data</button>
     </div>
-    <button class="reset-button" onclick="resetAllData()">Reset All Data</button>
+
+    <div class="section">
+      <div class="section-header">
+        <h2>Income Sources</h2>
+        <button class="add-button" onclick="addIncomeSource()">Add Income Source</button>
+      </div>
+      <table id="incomeTable">
+        <thead>
+          <tr>
+            <th>Source Name</th>
+            <th>Amount</th>
+            <th>Frequency</th>
+            <th>Monthly Total</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <div class="section">
+      <div class="section-header">
+        <h2>Expenses</h2>
+        <button class="add-button" onclick="addExpenseRow()">Add Expense</button>
+      </div>
+      <table id="expenseTable">
+        <thead>
+          <tr>
+            <th>Expense Name</th>
+            <th>Total Amount</th>
+            <th>Your Portion (%)</th>
+            <th>Monthly</th>
+            <th>Per Paycheck</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <div class="summary-grid">
+      <div class="summary-card">
+        <div class="card-title">Total Monthly Income</div>
+        <div class="card-amount amount-green" id="monthlyIncome">$0.00</div>
+      </div>
+      <div class="summary-card">
+        <div class="card-title">Monthly Expenses</div>
+        <div class="card-amount amount-red" id="monthlyExpenses">$0.00</div>
+      </div>
+      <div class="summary-card">
+        <div class="card-title">Average Per Paycheck</div>
+        <div class="card-amount amount-blue" id="calculatedPaycheck">$0.00</div>
+      </div>
+      <div class="summary-card">
+        <div class="card-title">Leftover Per Paycheck</div>
+        <div class="card-amount amount-purple" id="leftoverPerPaycheck">$0.00</div>
+      </div>
+    </div>
   </div>
 
-  <div class="section">
-    <div class="section-header">
-      <h2>Income Sources</h2>
-      <button class="add-button" onclick="addIncomeSource()">Add Income Source</button>
-    </div>
-    <table id="incomeTable">
-      <thead>
-        <tr>
-          <th>Source Name</th>
-          <th>Amount</th>
-          <th>Frequency</th>
-          <th>Monthly Total</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-  </div>
-
-  <div class="section">
-    <div class="section-header">
-      <h2>Expenses</h2>
-      <button class="add-button" onclick="addExpenseRow()">Add Expense</button>
-    </div>
-    <table id="expenseTable">
-      <thead>
-        <tr>
-          <th>Expense Name</th>
-          <th>Total Amount</th>
-          <th>Your Portion (%)</th>
-          <th>Monthly</th>
-          <th>Per Paycheck</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-  </div>
-
-  <div class="summary-grid">
-    <div class="summary-card">
-      <div class="card-title">Total Monthly Income</div>
-      <div class="card-amount amount-green" id="monthlyIncome">$0.00</div>
-    </div>
-    <div class="summary-card">
-      <div class="card-title">Monthly Expenses</div>
-      <div class="card-amount amount-red" id="monthlyExpenses">$0.00</div>
-    </div>
-    <div class="summary-card">
-      <div class="card-title">Average Per Paycheck</div>
-      <div class="card-amount amount-blue" id="calculatedPaycheck">$0.00</div>
-    </div>
-    <div class="summary-card">
-      <div class="card-title">Leftover Per Paycheck</div>
-      <div class="card-amount amount-purple" id="leftoverPerPaycheck">$0.00</div>
-    </div>
-  </div>
-
+  <!-- JavaScript code -->
   <script>
-    // Initialize Firebase
+    // Firebase configuration
     const firebaseConfig = {
       apiKey: "AIzaSyBfns6UFmWFDKyvLq4W6EWXe1qr1cbNuUY",
       authDomain: "budgettracker-8187e.firebaseapp.com",
@@ -268,50 +248,25 @@
 
     // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-const auth = firebase.auth();
-
-auth.onAuthStateChanged(function(user) {
-  if (!user) {
-    setTimeout(() => {
-      window.location.href = './index.html';
-    }, 100);
-    return;
-  }
-  
-  try {
-    loadUserData(user.uid);
-  } catch (error) {
-    console.error('Error:', error);
-  }
-});
-
-    function checkLoginState() {
-  auth.onAuthStateChanged((user) => {
-    if (user) {
-      loadUserData(user.uid);
-    } else {
-      window.location.href = 'index.html';
-    }
-  });
-}
-
-// Call it
-checkLoginState();
-
-    // Configure auth settings
+    const db = firebase.firestore();
+    const auth = firebase.auth();
     auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
 
-    // Update auth state listener
-    auth.onAuthStateChanged(function(user) {
-  if (!user) {
-    window.location.replace('index.html');
-    return;
-  }
-  loadUserData(user.uid);
-});
+    // Consolidated authentication state listener
+    firebase.auth().onAuthStateChanged(function(user) {
+      console.log("Auth state changed:", user);
+      if (user) {
+        // If the user is signed in, load their data and show the UI.
+        loadUserData(user.uid);
+        document.getElementById('main-content').style.display = 'block';
+      } else {
+        // If no user is signed in, redirect to index.html (which contains your login modal).
+        window.location.href = 'index.html';
+      }
+    });
 
-    // Rest of your original functions remain unchanged
+    // ----- Income/Expense and Utility Functions -----
+
     function addIncomeSource() {
       const tbody = document.querySelector('#incomeTable tbody');
       const row = document.createElement('tr');
@@ -339,6 +294,7 @@ checkLoginState();
       tbody.appendChild(row);
       attachListeners(row);
       saveUserData();
+      calculateTotals();
       return row;
     }
 
@@ -365,6 +321,7 @@ checkLoginState();
       tbody.appendChild(row);
       attachListeners(row);
       saveUserData();
+      calculateTotals();
       return row;
     }
 
@@ -389,7 +346,7 @@ checkLoginState();
     }
 
     function getFrequencyMultiplier(frequency) {
-      switch(frequency) {
+      switch (frequency) {
         case 'weekly': return 4;
         case 'twiceWeek': return 8;
         case 'everyOtherWeek': return 2;
@@ -406,7 +363,6 @@ checkLoginState();
         const amount = parseFloat(row.querySelector('.income-amount').value) || 0;
         const frequency = row.querySelector('.income-frequency').value;
         const monthlyAmount = amount * getFrequencyMultiplier(frequency);
-        
         row.querySelector('.monthly-total').textContent = `$${monthlyAmount.toFixed(2)}`;
         totalMonthlyIncome += monthlyAmount;
       });
@@ -416,7 +372,6 @@ checkLoginState();
         const portion = parseFloat(row.querySelector('.expense-portion').value) || 0;
         const monthlyExpense = amount * (portion / 100);
         const perPaycheckExpense = monthlyExpense / 2;
-
         row.querySelector('.monthly-expense').textContent = `$${monthlyExpense.toFixed(2)}`;
         row.querySelector('.per-paycheck-expense').textContent = `$${perPaycheckExpense.toFixed(2)}`;
         totalMonthlyExpenses += monthlyExpense;
@@ -425,14 +380,12 @@ checkLoginState();
       document.getElementById('monthlyIncome').textContent = `$${totalMonthlyIncome.toFixed(2)}`;
       document.getElementById('monthlyExpenses').textContent = `$${totalMonthlyExpenses.toFixed(2)}`;
       document.getElementById('calculatedPaycheck').textContent = `$${(totalMonthlyIncome / 2).toFixed(2)}`;
-      document.getElementById('leftoverPerPaycheck').textContent = 
-        `$${((totalMonthlyIncome - totalMonthlyExpenses) / 2).toFixed(2)}`;
+      document.getElementById('leftoverPerPaycheck').textContent = `$${((totalMonthlyIncome - totalMonthlyExpenses) / 2).toFixed(2)}`;
     }
 
     async function saveUserData() {
       const user = auth.currentUser;
       if (!user) return;
-
       const incomeData = [];
       document.querySelectorAll('#incomeTable tbody tr').forEach(row => {
         incomeData.push({
@@ -441,67 +394,62 @@ checkLoginState();
           frequency: row.querySelector('.income-frequency').value
         });
       });
-
       const expenseData = [];
       document.querySelectorAll('#expenseTable tbody tr').forEach(row => {
         expenseData.push({
-         expenseName: row.querySelector('.expense-name').value,
-         amount: parseFloat(row.querySelector('.expense-amount').value) || 0,
-         portion: parseFloat(row.querySelector('.expense-portion').value) || 0
-       });
-     });
+          expenseName: row.querySelector('.expense-name').value,
+          amount: parseFloat(row.querySelector('.expense-amount').value) || 0,
+          portion: parseFloat(row.querySelector('.expense-portion').value) || 0
+        });
+      });
+      try {
+        await db.collection('users').doc(user.uid).set({
+          income: incomeData,
+          expenses: expenseData,
+          lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+        });
+      } catch (error) {
+        console.error('Error saving data:', error);
+      }
+    }
 
-     try {
-       await db.collection('users').doc(user.uid).set({
-         income: incomeData,
-         expenses: expenseData,
-         lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
-       });
-     } catch (error) {
-       console.error('Error saving data:', error);
-     }
-   }
+    async function loadUserData(userId) {
+      try {
+        const doc = await db.collection('users').doc(userId).get();
+        if (doc.exists) {
+          const data = doc.data();
+          document.querySelector('#incomeTable tbody').innerHTML = '';
+          document.querySelector('#expenseTable tbody').innerHTML = '';
+          data.income?.forEach(income => {
+            const row = addIncomeSource();
+            row.querySelector('.income-name').value = income.sourceName;
+            row.querySelector('.income-amount').value = income.amount;
+            row.querySelector('.income-frequency').value = income.frequency;
+          });
+          data.expenses?.forEach(expense => {
+            const row = addExpenseRow();
+            row.querySelector('.expense-name').value = expense.expenseName;
+            row.querySelector('.expense-amount').value = expense.amount;
+            row.querySelector('.expense-portion').value = expense.portion;
+          });
+          calculateTotals();
+        }
+      } catch (error) {
+        console.error('Error loading data:', error);
+      }
+    }
 
-   async function loadUserData(userId) {
-     try {
-       const doc = await db.collection('users').doc(userId).get();
-       if (doc.exists) {
-         const data = doc.data();
-         
-         document.querySelector('#incomeTable tbody').innerHTML = '';
-         document.querySelector('#expenseTable tbody').innerHTML = '';
+    function resetAllData() {
+      if (confirm('Are you sure you want to reset all data? This cannot be undone.')) {
+        document.querySelector('#incomeTable tbody').innerHTML = '';
+        document.querySelector('#expenseTable tbody').innerHTML = '';
+        calculateTotals();
+        saveUserData();
+      }
+    }
 
-         data.income?.forEach(income => {
-           const row = addIncomeSource();
-           row.querySelector('.income-name').value = income.sourceName;
-           row.querySelector('.income-amount').value = income.amount;
-           row.querySelector('.income-frequency').value = income.frequency;
-         });
-
-         data.expenses?.forEach(expense => {
-           const row = addExpenseRow();
-           row.querySelector('.expense-name').value = expense.expenseName;
-           row.querySelector('.expense-amount').value = expense.amount;
-           row.querySelector('.expense-portion').value = expense.portion;
-         });
-
-         calculateTotals();
-       }
-     } catch (error) {
-       console.error('Error loading data:', error);
-     }
-   }
-
-   function resetAllData() {
-     if (confirm('Are you sure you want to reset all data? This cannot be undone.')) {
-       document.querySelector('#incomeTable tbody').innerHTML = '';
-       document.querySelector('#expenseTable tbody').innerHTML = '';
-       calculateTotals();
-       saveUserData();
-     }
-   }
-
-   calculateTotals();
- </script>
+    // Initial totals calculation in case there is any preloaded data.
+    calculateTotals();
+  </script>
 </body>
 </html>
