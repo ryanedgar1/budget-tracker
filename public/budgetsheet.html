@@ -276,13 +276,12 @@
 
     // Update auth state listener
     auth.onAuthStateChanged(function(user) {
-      if (!user) {
-        window.location.replace('./index.html');
-        return;
-      }
-      
-      loadUserData(user.uid);
-    });
+  if (!user) {
+    window.location.replace('index.html');
+    return;
+  }
+  loadUserData(user.uid);
+});
 
     // Rest of your original functions remain unchanged
     function addIncomeSource() {
