@@ -4,6 +4,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Budget Tracker</title>
+
+  <!-- Add Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, sans-serif;
@@ -246,6 +252,32 @@
   </div>
 
   <script>
+    // Initialize Firebase
+    const firebaseConfig = {
+      // Your Firebase config goes here
+      apiKey: "your-api-key",
+      authDomain: "your-auth-domain",
+      projectId: "your-project-id",
+      storageBucket: "your-storage-bucket",
+      messagingSenderId: "your-messaging-sender-id",
+      appId: "your-app-id"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const auth = firebase.auth();
+
+    // Check authentication state
+    auth.onAuthStateChanged(function(user) {
+      if (user) {
+        loadUserData(user.uid);
+      } else {
+        // Redirect to login page or handle unauthorized access
+        window.location.href = '/login.html';
+      }
+    });
+
     // Function to add a new income source row
     function addIncomeSource() {
       const tbody = document.querySelector('#incomeTable tbody');
@@ -273,6 +305,8 @@
       `;
       tbody.appendChild(row);
       attachListeners(row);
+      saveUserData();
+      return row;
     }
 
     // Function to add a new expense row
@@ -298,6 +332,8 @@
       `;
       tbody.appendChild(row);
       attachListeners(row);
+      saveUserData();
+      return row;
     }
 
     // Function to remove a row and recalculate
@@ -305,13 +341,20 @@
       const row = button.closest('tr');
       row.remove();
       calculateTotals();
+      saveUserData();
     }
 
     // Function to attach input listeners to a row
     function attachListeners(row) {
       row.querySelectorAll('input, select').forEach(input => {
-        input.addEventListener('input', calculateTotals);
-        input.addEventListener('change', calculateTotals);
+        input.addEventListener('input', () => {
+          calculateTotals();
+          saveUserData();
+        });
+        input.addEventListener('change', () => {
+          calculateTotals();
+          saveUserData();
+        });
       });
     }
 
@@ -361,12 +404,81 @@
         `$${((totalMonthlyIncome - totalMonthlyExpenses) / 2).toFixed(2)}`;
     }
 
+    // Function to save data to Firebase
+    async function saveUserData() {
+      const user = auth.currentUser;
+      if (!user) return;
+
+      const incomeData = [];
+      document.querySelectorAll('#incomeTable tbody tr').forEach(row => {
+        incomeData.push({
+          sourceName: row.querySelector('.income-name').value,
+          amount: parseFloat(row.querySelector('.income-amount').value) || 0,
+          frequency: row.querySelector('.income-frequency').value
+        });
+      });
+
+      const expenseData = [];
+document.querySelectorAll('#expenseTable tbody tr').forEach(row => {
+  expenseData.push({
+    expenseName: row.querySelector('.expense-name').value,
+    amount: parseFloat(row.querySelector('.expense-amount').value) || 0,
+    portion: parseFloat(row.querySelector('.expense-portion').value) || 0
+  });
+});
+
+try {
+  await db.collection('users').doc(user.uid).set({
+    income: incomeData,
+    expenses: expenseData,
+    lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+  });
+} catch (error) {
+  console.error('Error saving data:', error);
+}
+    }
+
+    // Function to load user data from Firebase
+    async function loadUserData(userId) {
+      try {
+        const doc = await db.collection('users').doc(userId).get();
+        if (doc.exists) {
+          const data = doc.data();
+          
+          // Clear existing data
+          document.querySelector('#incomeTable tbody').innerHTML = '';
+          document.querySelector('#expenseTable tbody').innerHTML = '';
+
+          // Load income sources
+          data.income?.forEach(income => {
+            const row = addIncomeSource();
+            row.querySelector('.income-name').value = income.sourceName;
+            row.querySelector('.income-amount').value = income.amount;
+            row.querySelector('.income-frequency').value = income.frequency;
+          });
+
+          // Load expenses
+          data.expenses?.forEach(expense => {
+            const row = addExpenseRow();
+            row.querySelector('.expense-name').value = expense.expenseName;
+            row.querySelector('.expense-amount').value = expense.amount;
+            row.querySelector('.expense-portion').value = expense.portion;
+          });
+
+          calculateTotals();
+        }
+      } catch (error) {
+        console.error('Error loading data:', error);
+      }
+    }
+
     // Function to reset all data
     function resetAllData() {
       if (confirm('Are you sure you want to reset all data? This cannot be undone.')) {
         document.querySelector('#incomeTable tbody').innerHTML = '';
         document.querySelector('#expenseTable tbody').innerHTML = '';
         calculateTotals();
+        saveUserData();
       }
     }
 
