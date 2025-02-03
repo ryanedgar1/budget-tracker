@@ -271,6 +271,19 @@
     const db = firebase.firestore();
     const auth = firebase.auth();
 
+    function checkLoginState() {
+  auth.onAuthStateChanged((user) => {
+    if (user) {
+      loadUserData(user.uid);
+    } else {
+      window.location.href = 'index.html';
+    }
+  });
+}
+
+// Call it
+checkLoginState();
+
     // Configure auth settings
     auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
 
