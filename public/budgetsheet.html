@@ -270,13 +270,20 @@
 
     // Check authentication state
     // Replace the existing auth.onAuthStateChanged in budgetsheet.html with this:
+// Add this in budgetsheet.html's script section
 auth.onAuthStateChanged(function(user) {
+  console.log('Auth state changed:', user ? 'User logged in' : 'No user');
+  
   if (user) {
-    // User is signed in, load their data
-    loadUserData(user.uid);
+    try {
+      loadUserData(user.uid);
+      console.log('User data loaded successfully');
+    } catch (error) {
+      console.error('Error loading user data:', error);
+    }
   } else {
-    // No user is signed in, redirect to homepage for login
-    window.location.href = 'index.html';
+    console.log('Redirecting to index.html');
+    window.location.href = '../index.html'; // Adjust path if needed
   }
 });
 
