@@ -156,7 +156,7 @@
   </style>
 </head>
 <body>
-  <!-- Wrap main UI in a container hidden until auth state is confirmed -->
+  <!-- Main content is hidden until the auth state is confirmed -->
   <div id="main-content" style="display: none;">
     <div class="header">
       <div>
@@ -231,7 +231,7 @@
     </div>
   </div>
 
-  <!-- JavaScript code with additional logging -->
+  <!-- JavaScript code with enhanced logging -->
   <script>
     // Firebase configuration
     const firebaseConfig = {
@@ -249,11 +249,13 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
     const auth = firebase.auth();
+
+    // Set auth persistence so the user remains signed in
     auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
       .then(() => console.log('Auth persistence set to LOCAL'))
       .catch(error => console.error('Error setting auth persistence:', error));
 
-    // Consolidated authentication state listener with detailed logging
+    // Consolidated auth state listener with detailed logging
     firebase.auth().onAuthStateChanged(function(user) {
       console.log("Auth state changed:", user);
       if (user) {
@@ -266,7 +268,7 @@
       }
     });
 
-    // ----- Income/Expense and Utility Functions with logging -----
+    // ----- Income/Expense and Utility Functions with Logging -----
 
     function addIncomeSource() {
       console.log("Adding new income source row.");
@@ -339,12 +341,12 @@
     function attachListeners(row) {
       row.querySelectorAll('input, select').forEach(input => {
         input.addEventListener('input', () => {
-          console.log("Input changed in row:", input);
+          console.log("Input event detected in row:", input);
           calculateTotals();
           saveUserData();
         });
         input.addEventListener('change', () => {
-          console.log("Input changed (on change event) in row:", input);
+          console.log("Change event detected in row:", input);
           calculateTotals();
           saveUserData();
         });
@@ -416,6 +418,8 @@
           portion: parseFloat(row.querySelector('.expense-portion').value) || 0
         });
       });
+      console.log("Income Data to be saved:", incomeData);
+      console.log("Expense Data to be saved:", expenseData);
       try {
         await db.collection('users').doc(user.uid).set({
           income: incomeData,
@@ -451,7 +455,7 @@
           });
           calculateTotals();
         } else {
-          console.log("No user data found.");
+          console.log("No user data found for this UID.");
         }
       } catch (error) {
         console.error("Error loading user data:", error);
