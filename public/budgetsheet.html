@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Budget Spreadsheet</title>
+  <!-- Firebase libraries -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
@@ -41,7 +42,10 @@
     button {
       cursor: pointer;
     }
-    #loading, #main-content {
+    #loading {
+      display: block;
+    }
+    #main-content {
       display: none;
     }
     .back-button {
@@ -57,7 +61,7 @@
 </head>
 <body>
   <div id="loading">Loading...</div>
-
+  
   <div id="main-content">
     <a href="index.html" class="back-button">Back to Home</a>
     <h1>Budget Spreadsheet</h1>
@@ -106,6 +110,7 @@
   </div>
   
   <script>
+    // Your Firebase configuration
     const firebaseConfig = {
       apiKey: "AIzaSyBfns6UFmWFDKyvLq4W6EWXe1qr1cbNuUY",
       authDomain: "budgettracker-8187e.firebaseapp.com",
@@ -122,13 +127,28 @@
     const auth = firebase.auth();
     const database = firebase.database();
 
-    // Sign in anonymously so auth.currentUser is defined
+    // Sign in anonymously so that auth.currentUser is defined.
     auth.signInAnonymously().catch(function(error) {
       console.error("Anonymous sign-in failed:", error);
     });
 
     const expenseTableBody = document.querySelector('#expenseTable tbody');
-    
+
+    // Listen for authentication state changes and log details.
+    auth.onAuthStateChanged(function(user) {
+      if (user) {
+        console.log("User signed in:", user.uid);
+        // Hide loading and display main content.
+        document.getElementById("loading").style.display = "none";
+        document.getElementById("main-content").style.display = "block";
+        // Load existing budget data if available.
+        loadBudgetData(user.uid);
+      } else {
+        console.log("No user signed in.");
+        window.location.href = 'index.html';
+      }
+    });
+
     function addExpenseRow(data = {}) {
       const row = document.createElement('tr');
       row.innerHTML = `
@@ -149,6 +169,7 @@
       `;
       expenseTableBody.appendChild(row);
       
+      // Update calculations and save data on any input change.
       row.querySelectorAll('input').forEach(input => {
         input.addEventListener('input', () => {
           calculateBudget();
@@ -204,8 +225,11 @@
 
     function saveBudgetData() {
       const user = auth.currentUser;
-      if (!user) return;
-
+      if (!user) {
+        console.log("saveBudgetData: No user available");
+        return;
+      }
+      
       const budgetData = {
         paycheck: {
           amount: document.getElementById('paycheckAmount').value,
@@ -218,7 +242,16 @@
         }))
       };
 
-      database.ref(`users/${user.uid}/budget`).set(budgetData);
+      console.log("Saving data for user:", user.uid, budgetData);
+
+      database.ref(`users/${user.uid}/budget`)
+        .set(budgetData)
+        .then(() => {
+          console.log("Budget data saved successfully.");
+        })
+        .catch((error) => {
+          console.error("Error saving budget data:", error);
+        });
     }
 
     function loadBudgetData(userId) {
@@ -235,24 +268,13 @@
             }
             calculateBudget();
           }
+        })
+        .catch(error => {
+          console.error("Error loading budget data:", error);
         });
     }
 
-    auth.onAuthStateChanged(function(user) {
-      const loadingElement = document.getElementById('loading');
-      const mainContent = document.getElementById('main-content');
-      
-      if (user) {
-        loadingElement.style.display = 'block';
-        loadBudgetData(user.uid).then(() => {
-          loadingElement.style.display = 'none';
-          mainContent.style.display = 'block';
-        });
-      } else {
-        window.location.href = 'index.html';
-      }
-    });
-
+    // Update calculations and saving when paycheck amount or frequency changes.
     document.getElementById('paycheckAmount').addEventListener('input', () => {
       calculateBudget();
       saveBudgetData();
