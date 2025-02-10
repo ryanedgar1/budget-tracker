@@ -116,7 +116,7 @@
   <div class="container">
     <a href="index.html" class="back-button">Back to Home</a>
     <h1>Budget Spreadsheet</h1>
-    
+
     <!-- Form for paycheck data -->
     <form id="budgetForm">
       <label>
@@ -134,7 +134,7 @@
       </label>
       <button type="button" onclick="addExpenseRow()">Add Expense</button>
     </form>
-    
+
     <!-- Expenses Table -->
     <table id="expenseTable">
       <thead>
@@ -149,7 +149,7 @@
       </thead>
       <tbody></tbody>
     </table>
-    
+
     <!-- Results -->
     <div id="results">
       <h2>Results</h2>
@@ -161,7 +161,7 @@
       <p><strong>Leftover Per Paycheck:</strong> <span id="leftoverPerPaycheck">$0.00</span></p>
     </div>
   </div>
-  
+
   <script>
     // Firebase configuration
     const firebaseConfig = {
@@ -180,8 +180,6 @@
     const auth = firebase.auth();
     const database = firebase.database();
 
-    // (Do not call auth.signInAnonymously() if you’re using email/password authentication.)
-    
     const expenseTableBody = document.querySelector('#expenseTable tbody');
 
     // Listen for authentication state changes.

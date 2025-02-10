@@ -13,7 +13,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
-  
+
   <style>
     :root {
       --primary: #2563eb;
@@ -667,7 +667,7 @@
       </div>
     </div>
   </div>
-  
+
   <!-- People Management Modal -->
   <div id="people-modal" class="modal">
     <div class="modal-content">
@@ -699,7 +699,7 @@
       appId: "1:622910803459:web:9761b015edc7b3f98a4836",
       measurementId: "G-Q9XBRDQL7V"
     };
-    
+
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const database = firebase.database();
@@ -743,7 +743,7 @@
     function handleLogin() {
       const email = document.getElementById("login-email").value;
       const password = document.getElementById("login-password").value;
-      
+
       auth.signInWithEmailAndPassword(email, password)
         .then((userCredential) => {
           document.getElementById("login-modal").style.display = "none";
@@ -758,7 +758,7 @@
     function handleSignup() {
       const email = document.getElementById("login-email").value;
       const password = document.getElementById("login-password").value;
-      
+
       auth.createUserWithEmailAndPassword(email, password)
         .then((userCredential) => {
           document.getElementById("login-modal").style.display = "none";
@@ -805,7 +805,7 @@
     function saveToFirebase() {
       const userId = auth.currentUser?.uid;
       if (!userId) return;
-      
+
       const userRef = database.ref("users/" + userId);
       userRef.set({
         people: state.people,
@@ -839,7 +839,7 @@
       if (e) e.preventDefault();
       const nameInput = document.getElementById("person-name");
       const name = nameInput?.value?.trim();
-      
+
       if (name) {
         const person = { id: generateId(), name };
         state.people.push(person);
@@ -857,7 +857,7 @@
     function updatePeopleList() {
       const peopleList = document.getElementById("people-list");
       if (!peopleList) return;
-      
+
       peopleList.innerHTML = "";
       state.people.forEach((person) => {
         const div = document.createElement("div");
@@ -898,7 +898,7 @@
     function showDeleteModal(personId) {
       const person = state.people.find((p) => p.id === personId);
       if (!person) return;
-      
+
       state.deletePersonId = personId;
       elements.deletePersonName.textContent = person.name;
       elements.deleteModal.classList.add("show");
