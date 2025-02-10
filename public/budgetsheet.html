@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Budget Spreadsheet</title>
-  <!-- Firebase libraries -->
+  <!-- Firebase libraries (using only app, auth, and database) -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
@@ -66,6 +66,7 @@
     <a href="index.html" class="back-button">Back to Home</a>
     <h1>Budget Spreadsheet</h1>
     
+    <!-- Form for paycheck data -->
     <form id="budgetForm">
       <label>
         Paycheck Amount:
@@ -80,37 +81,51 @@
           <option value="monthly">Monthly (1 per month)</option>
         </select>
       </label>
-      <button type="button" onclick="addExpenseRow()">Add Expense</button>
     </form>
     
-    <table id="expenseTable">
+    <!-- Income Sources Section -->
+    <button type="button" onclick="addIncomeRow()">Add Income Source</button>
+    <table id="incomeTable">
       <thead>
         <tr>
-          <th>Expense Name</th>
-          <th>Total Expense Amount</th>
-          <th>Your Portion (%)</th>
-          <th>Your Expense (Monthly)</th>
-          <th>Your Expense (Per Paycheck)</th>
+          <th>Income Source Name</th>
+          <th>Amount</th>
+          <th>Frequency</th>
+          <th>Monthly Income</th>
           <th>Action</th>
         </tr>
       </thead>
       <tbody></tbody>
     </table>
     
+    <!-- Expenses Section -->
+    <button type="button" onclick="addExpenseRow()">Add Expense</button>
+    <table id="expenseTable">
+      <thead>
+        <tr>
+          <th>Expense Name</th>
+          <th>Total Expense Amount</th>
+          <th>Your Portion (%)</th>
+          <th>Monthly Expense</th>
+          <th>Expense Per Paycheck</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    
+    <!-- Results -->
     <h2>Results</h2>
-    <p>
-      <strong>Your Paycheck:</strong> <span id="calculatedPaycheck">$0.00</span>
-    </p>
-    <p>
-      <strong>Your Monthly Income:</strong> <span id="monthlyIncome">$0.00</span>
-    </p>
-    <p>
-      <strong>Leftover Per Paycheck:</strong> <span id="leftoverPerPaycheck">$0.00</span>
-    </p>
+    <p><strong>Your Paycheck:</strong> <span id="calculatedPaycheck">$0.00</span></p>
+    <p><strong>Paycheck-based Monthly Income:</strong> <span id="monthlyIncome">$0.00</span></p>
+    <p><strong>Total Additional Income:</strong> <span id="additionalIncome">$0.00</span></p>
+    <p><strong>Total Monthly Income:</strong> <span id="totalMonthlyIncome">$0.00</span></p>
+    <p><strong>Total Monthly Expenses:</strong> <span id="totalMonthlyExpenses">$0.00</span></p>
+    <p><strong>Leftover Per Paycheck:</strong> <span id="leftoverPerPaycheck">$0.00</span></p>
   </div>
   
   <script>
-    // Your Firebase configuration
+    // Firebase configuration (only using Realtime Database)
     const firebaseConfig = {
       apiKey: "AIzaSyBfns6UFmWFDKyvLq4W6EWXe1qr1cbNuUY",
       authDomain: "budgettracker-8187e.firebaseapp.com",
@@ -121,27 +136,24 @@
       appId: "1:622910803459:web:9761b015edc7b3f98a4836",
       measurementId: "G-Q9XBRDQL7V"
     };
-
-    // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const database = firebase.database();
 
     // Sign in anonymously so that auth.currentUser is defined.
-    auth.signInAnonymously().catch(function(error) {
+    auth.signInAnonymously().catch(error => {
       console.error("Anonymous sign-in failed:", error);
     });
 
     const expenseTableBody = document.querySelector('#expenseTable tbody');
+    const incomeTableBody = document.querySelector('#incomeTable tbody');
 
-    // Listen for authentication state changes and log details.
-    auth.onAuthStateChanged(function(user) {
+    // Listen for auth state changes.
+    auth.onAuthStateChanged(user => {
       if (user) {
         console.log("User signed in:", user.uid);
-        // Hide loading and display main content.
         document.getElementById("loading").style.display = "none";
         document.getElementById("main-content").style.display = "block";
-        // Load existing budget data if available.
         loadBudgetData(user.uid);
       } else {
         console.log("No user signed in.");
@@ -149,27 +161,18 @@
       }
     });
 
+    // Add a new expense row.
     function addExpenseRow(data = {}) {
       const row = document.createElement('tr');
       row.innerHTML = `
-        <td>
-          <input type="text" class="expenseName" placeholder="Expense name" required value="${data.name || ''}">
-        </td>
-        <td>
-          <input type="number" class="totalExpense" step="0.01" placeholder="Total expense" required value="${data.totalExpense || ''}">
-        </td>
-        <td>
-          <input type="number" class="yourPortion" step="0.01" placeholder="Your portion (%)" required value="${data.portion || 100}">
-        </td>
+        <td><input type="text" class="expenseName" placeholder="Expense name" required value="${data.name || ''}"></td>
+        <td><input type="number" class="totalExpense" step="0.01" placeholder="Total expense" required value="${data.totalExpense || ''}"></td>
+        <td><input type="number" class="yourPortion" step="0.01" placeholder="Your portion (%)" required value="${data.portion || 100}"></td>
         <td class="monthlyExpense">$0.00</td>
         <td class="perPaycheckExpense">$0.00</td>
-        <td>
-          <button type="button" onclick="removeExpenseRow(this)">Remove</button>
-        </td>
+        <td><button type="button" onclick="removeRow(this, 'expense')">Remove</button></td>
       `;
       expenseTableBody.appendChild(row);
-      
-      // Update calculations and save data on any input change.
       row.querySelectorAll('input').forEach(input => {
         input.addEventListener('input', () => {
           calculateBudget();
@@ -177,17 +180,44 @@
         });
       });
     }
-    
-    function removeExpenseRow(button) {
+
+    // Add a new income row.
+    function addIncomeRow(data = {}) {
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td><input type="text" class="incomeName" placeholder="Income source name" required value="${data.sourceName || ''}"></td>
+        <td><input type="number" class="incomeAmount" step="0.01" placeholder="Amount" required value="${data.amount || ''}"></td>
+        <td>
+          <select class="incomeFrequency">
+            <option value="weekly" ${data.frequency === 'weekly' ? 'selected' : ''}>Weekly</option>
+            <option value="monthly" ${data.frequency === 'monthly' ? 'selected' : ''}>Monthly</option>
+            <option value="annually" ${data.frequency === 'annually' ? 'selected' : ''}>Annually</option>
+          </select>
+        </td>
+        <td class="monthlyIncome">$0.00</td>
+        <td><button type="button" onclick="removeRow(this, 'income')">Remove</button></td>
+      `;
+      incomeTableBody.appendChild(row);
+      row.querySelectorAll('input, select').forEach(input => {
+        input.addEventListener('input', () => {
+          calculateBudget();
+          saveBudgetData();
+        });
+      });
+    }
+
+    // Remove a row (income or expense) based on type.
+    function removeRow(button, type) {
       const row = button.closest('tr');
       row.remove();
       calculateBudget();
       saveBudgetData();
     }
-    
+
+    // Return the number of pay periods per month based on the selected frequency.
     function getPayPeriodCount() {
       const frequency = document.getElementById('payFrequency').value;
-      switch(frequency) {
+      switch (frequency) {
         case 'weekly': return 4;
         case 'twiceWeek': return 8;
         case 'everyOtherWeek': return 2;
@@ -195,74 +225,101 @@
         default: return 4;
       }
     }
-    
+
+    // Calculate all totals.
     function calculateBudget() {
       const paycheckAmount = parseFloat(document.getElementById('paycheckAmount').value) || 0;
       const payPeriodCount = getPayPeriodCount();
+      let totalExpenseMonthly = 0;
+      let additionalIncomeMonthly = 0;
       
-      let totalYourMonthlyExpenses = 0;
-      
-      const rows = expenseTableBody.querySelectorAll('tr');
-      rows.forEach(row => {
+      // Process expense rows.
+      const expenseRows = expenseTableBody.querySelectorAll('tr');
+      expenseRows.forEach(row => {
         const totalExpense = parseFloat(row.querySelector('.totalExpense').value) || 0;
-        const yourPortionPercent = parseFloat(row.querySelector('.yourPortion').value) || 0;
-        const yourMonthlyExpense = totalExpense * (yourPortionPercent / 100);
-        totalYourMonthlyExpenses += yourMonthlyExpense;
-        
-        const perPaycheckExpense = yourMonthlyExpense / payPeriodCount;
-        row.querySelector('.monthlyExpense').textContent = `$${yourMonthlyExpense.toFixed(2)}`;
-        row.querySelector('.perPaycheckExpense').textContent = `$${perPaycheckExpense.toFixed(2)}`;
+        const yourPortion = parseFloat(row.querySelector('.yourPortion').value) || 0;
+        const monthlyExpense = totalExpense * (yourPortion / 100);
+        totalExpenseMonthly += monthlyExpense;
+        const expensePerPaycheck = monthlyExpense / payPeriodCount;
+        row.querySelector('.monthlyExpense').textContent = `$${monthlyExpense.toFixed(2)}`;
+        row.querySelector('.perPaycheckExpense').textContent = `$${expensePerPaycheck.toFixed(2)}`;
       });
       
-      const monthlyIncome = paycheckAmount * payPeriodCount;
-      const totalExpensePerPaycheck = totalYourMonthlyExpenses / payPeriodCount;
-      const leftoverPerPaycheck = paycheckAmount - totalExpensePerPaycheck;
+      // Process income rows.
+      const incomeRows = incomeTableBody.querySelectorAll('tr');
+      incomeRows.forEach(row => {
+        const amount = parseFloat(row.querySelector('.incomeAmount').value) || 0;
+        const frequency = row.querySelector('.incomeFrequency').value;
+        let monthlyValue = 0;
+        if (frequency === 'weekly') {
+          monthlyValue = amount * 4;
+        } else if (frequency === 'monthly') {
+          monthlyValue = amount;
+        } else if (frequency === 'annually') {
+          monthlyValue = amount / 12;
+        }
+        additionalIncomeMonthly += monthlyValue;
+        row.querySelector('.monthlyIncome').textContent = `$${monthlyValue.toFixed(2)}`;
+      });
+      
+      const paycheckMonthlyIncome = paycheckAmount * payPeriodCount;
+      const totalMonthlyIncome = paycheckMonthlyIncome + additionalIncomeMonthly;
+      const leftoverPerPaycheck = paycheckAmount - (totalExpenseMonthly / payPeriodCount);
       
       document.getElementById('calculatedPaycheck').textContent = `$${paycheckAmount.toFixed(2)}`;
-      document.getElementById('monthlyIncome').textContent = `$${monthlyIncome.toFixed(2)}`;
+      document.getElementById('monthlyIncome').textContent = `$${paycheckMonthlyIncome.toFixed(2)}`;
+      document.getElementById('additionalIncome').textContent = `$${additionalIncomeMonthly.toFixed(2)}`;
+      document.getElementById('totalMonthlyIncome').textContent = `$${totalMonthlyIncome.toFixed(2)}`;
+      document.getElementById('totalMonthlyExpenses').textContent = `$${totalExpenseMonthly.toFixed(2)}`;
       document.getElementById('leftoverPerPaycheck').textContent = `$${leftoverPerPaycheck.toFixed(2)}`;
     }
 
+    // Save data to the Realtime Database.
     function saveBudgetData() {
       const user = auth.currentUser;
       if (!user) {
         console.log("saveBudgetData: No user available");
         return;
       }
-      
-      const budgetData = {
+      const data = {
         paycheck: {
           amount: document.getElementById('paycheckAmount').value,
           frequency: document.getElementById('payFrequency').value
         },
+        incomes: Array.from(incomeTableBody.querySelectorAll('tr')).map(row => ({
+          sourceName: row.querySelector('.incomeName').value,
+          amount: row.querySelector('.incomeAmount').value,
+          frequency: row.querySelector('.incomeFrequency').value
+        })),
         expenses: Array.from(expenseTableBody.querySelectorAll('tr')).map(row => ({
           name: row.querySelector('.expenseName').value,
           totalExpense: row.querySelector('.totalExpense').value,
           portion: row.querySelector('.yourPortion').value
         }))
       };
-
-      console.log("Saving data for user:", user.uid, budgetData);
-
-      database.ref(`users/${user.uid}/budget`)
-        .set(budgetData)
+      console.log("Saving data for user:", user.uid, data);
+      database.ref(`users/${user.uid}/budget`).set(data)
         .then(() => {
           console.log("Budget data saved successfully.");
         })
-        .catch((error) => {
+        .catch(error => {
           console.error("Error saving budget data:", error);
         });
     }
 
+    // Load existing data from the Realtime Database.
     function loadBudgetData(userId) {
       return database.ref(`users/${userId}/budget`).once('value')
-        .then((snapshot) => {
+        .then(snapshot => {
           const data = snapshot.val();
           if (data) {
             document.getElementById('paycheckAmount').value = data.paycheck?.amount || '';
             document.getElementById('payFrequency').value = data.paycheck?.frequency || 'weekly';
-            
+            incomeTableBody.innerHTML = '';
             expenseTableBody.innerHTML = '';
+            if (data.incomes) {
+              data.incomes.forEach(income => addIncomeRow(income));
+            }
             if (data.expenses) {
               data.expenses.forEach(expense => addExpenseRow(expense));
             }
@@ -274,7 +331,7 @@
         });
     }
 
-    // Update calculations and saving when paycheck amount or frequency changes.
+    // Recalculate and save when paycheck amount or frequency changes.
     document.getElementById('paycheckAmount').addEventListener('input', () => {
       calculateBudget();
       saveBudgetData();
