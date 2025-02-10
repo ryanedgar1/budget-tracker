@@ -140,10 +140,10 @@
     const auth = firebase.auth();
     const database = firebase.database();
 
-    // Sign in anonymously so that auth.currentUser is defined.
-    auth.signInAnonymously().catch(error => {
-      console.error("Anonymous sign-in failed:", error);
-    });
+    // NOTE: Remove anonymous sign‑in since we are using email/password
+    // auth.signInAnonymously().catch(error => {
+    //   console.error("Anonymous sign-in failed:", error);
+    // });
 
     const expenseTableBody = document.querySelector('#expenseTable tbody');
     const incomeTableBody = document.querySelector('#incomeTable tbody');
@@ -315,7 +315,6 @@
           if (data) {
             document.getElementById('paycheckAmount').value = data.paycheck?.amount || '';
             document.getElementById('payFrequency').value = data.paycheck?.frequency || 'weekly';
-            // Clear both income and expense tables before repopulating
             incomeTableBody.innerHTML = '';
             expenseTableBody.innerHTML = '';
             if (data.incomes) {
