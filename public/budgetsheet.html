@@ -3,29 +3,53 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Budget Tracker</title>
+  <title>Budget Spreadsheet</title>
 
-  <!-- Firebase SDKs -->
+  <!-- Firebase SDKs - Note we're using Realtime Database instead of Firestore -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 
-  <!-- Your CSS styles remain the same -->
   <style>
-    /* Previous styles remain unchanged */
+    /* Your existing styles remain the same */
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, sans-serif;
+      font-family: Arial, sans-serif;
       background-color: #f8fafc;
-      padding: 20px;
+      margin: 20px;
       color: #333;
-      max-width: 1200px;
-      margin: 0 auto;
     }
-    .header {
+    h1, h2 {
+      color: #1e293b;
+    }
+    form {
+      margin-bottom: 20px;
+    }
+    input, select, button {
+      padding: 8px;
+      margin: 5px;
+      font-size: 1rem;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: left;
+    }
+    th {
+      background-color: #f1f5f9;
+    }
+    button {
+      cursor: pointer;
+    }
+    .header-actions {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 30px;
+      margin-bottom: 20px;
     }
     .back-button {
       background-color: #3b82f6;
@@ -34,209 +58,75 @@
       padding: 8px 16px;
       border-radius: 4px;
       text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      font-weight: 500;
-    }
-    .reset-button {
-      color: #ef4444;
-      border: none;
-      background: none;
       cursor: pointer;
-      font-weight: 500;
     }
-    h1 {
-      color: #1e293b;
-      font-weight: 500;
-      font-size: 24px;
-      margin: 0;
-      margin-left: 20px;
-      display: inline-block;
-    }
-    .section {
-      background: white;
-      border-radius: 8px;
-      padding: 24px;
-      margin-bottom: 24px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    }
-    .section-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-    }
-    .section-header h2 {
-      font-weight: 500;
-      font-size: 18px;
-      margin: 0;
-      color: #1e293b;
-    }
-    .add-button {
-      background-color: #22c55e;
-      color: white;
-      border: none;
-      padding: 8px 16px;
-      border-radius: 4px;
-      cursor: pointer;
-      font-weight: 500;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-    th {
-      text-transform: uppercase;
-      font-weight: 500;
-      color: #64748b;
-      font-size: 12px;
-      padding: 12px;
-      text-align: left;
-      border-bottom: 1px solid #e2e8f0;
-    }
-    td {
-      padding: 12px;
-      border-bottom: 1px solid #e2e8f0;
-    }
-    input, select {
-      width: 100%;
-      padding: 8px 12px;
-      border: 1px solid #e2e8f0;
-      border-radius: 4px;
-      font-size: 14px;
-      color: #1e293b;
-    }
-    select {
-      background-color: white;
-    }
-    .amount-input {
-      position: relative;
-    }
-    .amount-input span {
-      position: absolute;
-      left: 12px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: #64748b;
-    }
-    .amount-input input {
-      padding-left: 24px;
-    }
-    .delete-button {
-      color: #ef4444;
-      border: none;
-      background: none;
-      cursor: pointer;
-      font-weight: 500;
-    }
-    .summary-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 20px;
-    }
-    .summary-card {
-      background: white;
+    #loading {
+      text-align: center;
       padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      font-size: 1.2rem;
+      color: #666;
     }
-    .card-title {
-      color: #64748b;
-      font-size: 14px;
-      margin-bottom: 8px;
-      font-weight: 500;
-    }
-    .card-amount {
-      font-size: 24px;
-      font-weight: 600;
-    }
-    .amount-green { color: #22c55e; }
-    .amount-red { color: #ef4444; }
-    .amount-blue { color: #3b82f6; }
-    .amount-purple { color: #a855f7; }
   </style>
 </head>
 <body>
-  <!-- Loading indicator -->
-  <div id="loading" style="display: none; text-align: center; padding: 20px;">
-    Loading your budget data...
-  </div>
+  <div id="loading">Loading your budget data...</div>
 
-  <!-- Main content -->
   <div id="main-content" style="display: none;">
-    <div class="header">
+    <div class="header-actions">
+      <h1>Budget Spreadsheet</h1>
       <div>
-        <a href="index.html" class="back-button">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;">
-            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-            <polyline points="9 22 9 12 15 12 15 22"></polyline>
-          </svg>
-          Back to Home
-        </a>
-        <h1>Budget Sheet</h1>
-      </div>
-      <button class="reset-button" onclick="resetAllData()">Reset All Data</button>
-    </div>
-
-    <div class="section">
-      <div class="section-header">
-        <h2>Income Sources</h2>
-        <button class="add-button" onclick="addIncomeSource()">Add Income Source</button>
-      </div>
-      <table id="incomeTable">
-        <thead>
-          <tr>
-            <th>Source Name</th>
-            <th>Amount</th>
-            <th>Frequency</th>
-            <th>Monthly Total</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </div>
-
-    <div class="section">
-      <div class="section-header">
-        <h2>Expenses</h2>
-        <button class="add-button" onclick="addExpenseRow()">Add Expense</button>
-      </div>
-      <table id="expenseTable">
-        <thead>
-          <tr>
-            <th>Expense Name</th>
-            <th>Total Amount</th>
-            <th>Your Portion (%)</th>
-            <th>Monthly</th>
-            <th>Per Paycheck</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </div>
-
-    <div class="summary-grid">
-      <div class="summary-card">
-        <div class="card-title">Total Monthly Income</div>
-        <div class="card-amount amount-green" id="monthlyIncome">$0.00</div>
-      </div>
-      <div class="summary-card">
-        <div class="card-title">Monthly Expenses</div>
-        <div class="card-amount amount-red" id="monthlyExpenses">$0.00</div>
-      </div>
-      <div class="summary-card">
-        <div class="card-title">Average Per Paycheck</div>
-        <div class="card-amount amount-blue" id="calculatedPaycheck">$0.00</div>
-      </div>
-      <div class="summary-card">
-        <div class="card-title">Leftover Per Paycheck</div>
-        <div class="card-amount amount-purple" id="leftoverPerPaycheck">$0.00</div>
+        <a href="index.html" class="back-button">Back to Home</a>
       </div>
     </div>
+    
+    <!-- Form for paycheck details -->
+    <form id="budgetForm">
+      <label>
+        Paycheck Amount:
+        <input type="number" id="paycheckAmount" step="0.01" placeholder="e.g., 2209.22" required>
+      </label>
+      <label>
+        Pay Frequency:
+        <select id="payFrequency" required>
+          <option value="weekly">Weekly (4 per month)</option>
+          <option value="twiceWeek">Twice a week (8 per month)</option>
+          <option value="everyOtherWeek">Every other week (2 per month)</option>
+          <option value="monthly">Monthly (1 per month)</option>
+        </select>
+      </label>
+      <button type="button" onclick="addExpenseRow()">Add Expense</button>
+    </form>
+    
+    <!-- Table to list expense items -->
+    <table id="expenseTable">
+      <thead>
+        <tr>
+          <th>Expense Name</th>
+          <th>Total Expense Amount</th>
+          <th>Your Portion (%)</th>
+          <th>Your Expense (Monthly)</th>
+          <th>Your Expense (Per Paycheck)</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Expense rows will be dynamically added here -->
+      </tbody>
+    </table>
+    
+    <!-- Section to display overall results -->
+    <h2>Results</h2>
+    <p>
+      <strong>Your Paycheck:</strong> <span id="calculatedPaycheck">$0.00</span>
+    </p>
+    <p>
+      <strong>Your Monthly Income:</strong> <span id="monthlyIncome">$0.00</span>
+    </p>
+    <p>
+      <strong>Leftover Per Paycheck:</strong> <span id="leftoverPerPaycheck">$0.00</span>
+    </p>
   </div>
-
+  
   <script>
     // Firebase configuration
     const firebaseConfig = {
@@ -250,274 +140,174 @@
       measurementId: "G-Q9XBRDQL7V"
     };
 
-    // Initialize Firebase with improved error handling
-    try {
-      firebase.initializeApp(firebaseConfig);
-    } catch (e) {
-      console.error("Error initializing Firebase:", e);
-    }
-
-    const db = firebase.firestore();
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
+    const database = firebase.database();
+
+    // Reference to the table body for expenses
+    const expenseTableBody = document.querySelector('#expenseTable tbody');
     
-    // Add debounce function to prevent too frequent saves
-    function debounce(func, wait) {
-      let timeout;
-      return function executedFunction(...args) {
-        const later = () => {
-          clearTimeout(timeout);
-          func(...args);
-        };
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
-      };
+    // Function to add a new expense row
+    function addExpenseRow(data = {}) {
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>
+          <input type="text" class="expenseName" placeholder="Expense name" required value="${data.name || ''}">
+        </td>
+        <td>
+          <input type="number" class="totalExpense" step="0.01" placeholder="Total expense" required value="${data.totalExpense || ''}">
+        </td>
+        <td>
+          <input type="number" class="yourPortion" step="0.01" placeholder="Your portion (%)" required value="${data.portion || ''}">
+        </td>
+        <td class="monthlyExpense">$0.00</td>
+        <td class="perPaycheckExpense">$0.00</td>
+        <td>
+          <button type="button" onclick="removeExpenseRow(this)">Remove</button>
+        </td>
+      `;
+      expenseTableBody.appendChild(row);
+      
+      // Attach event listeners
+      row.querySelectorAll('input').forEach(input => {
+        input.addEventListener('input', () => {
+          calculateBudget();
+          saveToDatabase();
+        });
+      });
+    }
+    
+    // Function to remove an expense row
+    function removeExpenseRow(button) {
+      const row = button.closest('tr');
+      row.remove();
+      calculateBudget();
+      saveToDatabase();
+    }
+    
+    // Determine the number of pay periods per month based on frequency
+    function getPayPeriodCount() {
+      const frequency = document.getElementById('payFrequency').value;
+      switch(frequency) {
+        case 'weekly': return 4;
+        case 'twiceWeek': return 8;
+        case 'everyOtherWeek': return 2;
+        case 'monthly': return 1;
+        default: return 4;
+      }
+    }
+    
+    // Function to perform all the budget calculations
+    function calculateBudget() {
+      const paycheckAmount = parseFloat(document.getElementById('paycheckAmount').value) || 0;
+      const payPeriodCount = getPayPeriodCount();
+      
+      let totalYourMonthlyExpenses = 0;
+      
+      // Process each expense row
+      const rows = expenseTableBody.querySelectorAll('tr');
+      rows.forEach(row => {
+        const totalExpense = parseFloat(row.querySelector('.totalExpense').value) || 0;
+        const yourPortionPercent = parseFloat(row.querySelector('.yourPortion').value) || 0;
+        const yourMonthlyExpense = totalExpense * (yourPortionPercent / 100);
+        totalYourMonthlyExpenses += yourMonthlyExpense;
+        
+        const perPaycheckExpense = yourMonthlyExpense / payPeriodCount;
+        row.querySelector('.monthlyExpense').textContent = `$${yourMonthlyExpense.toFixed(2)}`;
+        row.querySelector('.perPaycheckExpense').textContent = `$${perPaycheckExpense.toFixed(2)}`;
+      });
+      
+      const monthlyIncome = paycheckAmount * payPeriodCount;
+      const totalExpensePerPaycheck = totalYourMonthlyExpenses / payPeriodCount;
+      const leftoverPerPaycheck = paycheckAmount - totalExpensePerPaycheck;
+      
+      document.getElementById('calculatedPaycheck').textContent = `$${paycheckAmount.toFixed(2)}`;
+      document.getElementById('monthlyIncome').textContent = `$${monthlyIncome.toFixed(2)}`;
+      document.getElementById('leftoverPerPaycheck').textContent = `$${leftoverPerPaycheck.toFixed(2)}`;
     }
 
-    // Improved auth state listener
+    // Function to save data to Firebase Realtime Database
+    async function saveToDatabase() {
+      const user = auth.currentUser;
+      if (!user) return;
+
+      const budgetData = {
+        paycheck: {
+          amount: document.getElementById('paycheckAmount').value,
+          frequency: document.getElementById('payFrequency').value
+        },
+        expenses: Array.from(expenseTableBody.querySelectorAll('tr')).map(row => ({
+          name: row.querySelector('.expenseName').value,
+          totalExpense: row.querySelector('.totalExpense').value,
+          portion: row.querySelector('.yourPortion').value
+        }))
+      };
+
+      try {
+        await database.ref("users/" + user.uid + "/budgetSheet").set(budgetData);
+      } catch (error) {
+        console.error('Error saving data:', error);
+      }
+    }
+
+    // Function to load data from Firebase Realtime Database
+    async function loadFromDatabase(userId) {
+      try {
+        const snapshot = await database.ref("users/" + userId + "/budgetSheet").once('value');
+        const data = snapshot.val();
+        
+        if (data) {
+          // Load paycheck data
+          if (data.paycheck) {
+            document.getElementById('paycheckAmount').value = data.paycheck.amount || '';
+            document.getElementById('payFrequency').value = data.paycheck.frequency || 'weekly';
+          }
+          
+          // Clear existing expenses
+          expenseTableBody.innerHTML = '';
+          
+          // Load expenses
+          if (data.expenses) {
+            data.expenses.forEach(expense => {
+              addExpenseRow({
+                name: expense.name,
+                totalExpense: expense.totalExpense,
+                portion: expense.portion
+              });
+            });
+          }
+          
+          calculateBudget();
+        }
+      } catch (error) {
+        console.error('Error loading data:', error);
+      }
+    }
+
+    // Auth state listener
     auth.onAuthStateChanged(function(user) {
       const loadingElement = document.getElementById('loading');
       const mainContent = document.getElementById('main-content');
       
       if (user) {
-        loadingElement.style.display = 'block';
-        mainContent.style.display = 'none';
-        
-        loadUserData(user.uid).then(() => {
+        loadFromDatabase(user.uid).then(() => {
           loadingElement.style.display = 'none';
           mainContent.style.display = 'block';
-        }).catch(error => {
-          console.error("Error loading user data:", error);
-          alert("There was an error loading your data. Please try refreshing the page.");
         });
       } else {
         window.location.href = 'index.html';
       }
     });
-
-    // Improved data loading function
-    async function loadUserData(userId) {
-      try {
-        const doc = await db.collection('budgetSheet').doc(userId).get();
-        
-        if (doc.exists) {
-          const data = doc.data();
-          
-          // Clear existing data
-          document.querySelector('#incomeTable tbody').innerHTML = '';
-          document.querySelector('#expenseTable tbody').innerHTML = '';
-          
-          // Load income sources
-          if (data.income && Array.isArray(data.income)) {
-            data.income.forEach(income => {
-              const row = addIncomeSource();
-              row.querySelector('.income-name').value = income.sourceName || '';
-              row.querySelector('.income-amount').value = income.amount || 0;
-              row.querySelector('.income-frequency').value = income.frequency || 'monthly';
-            });
-          }
-          
-          // Load expenses
-          if (data.expenses && Array.isArray(data.expenses)) {
-            data.expenses.forEach(expense => {
-              const row = addExpenseRow();
-              row.querySelector('.expense-name').value = expense.expenseName || '';
-              row.querySelector('.expense-amount').value = expense.amount || 0;
-              row.querySelector('.expense-portion').value = expense.portion || 100;
-            });
-          }
-          
-          calculateTotals();
-        }
-      } catch (error) {
-        console.error("Error loading user data:", error);
-        throw error;
-      }
-    }
-
-    // Debounced save function
-    const debouncedSave = debounce(async () => {
-      const user = auth.currentUser;
-      if (!user) return;
-
-      try {
-        const incomeData = Array.from(document.querySelectorAll('#incomeTable tbody tr')).map(row => ({
-          sourceName: row.querySelector('.income-name').value,
-          amount: parseFloat(row.querySelector('.income-amount').value) || 0,
-          frequency: row.querySelector('.income-frequency').value
-        }));
-
-        const expenseData = Array.from(document.querySelectorAll('#expenseTable tbody tr')).map(row => ({
-          expenseName: row.querySelector('.expense-name').value,
-          amount: parseFloat(row.querySelector('.expense-amount').value) || 0,
-          portion: parseFloat(row.querySelector('.expense-portion').value) || 0
-        }));
-
-        await db.collection('budgetSheet').doc(user.uid).set({
-          income: incomeData,
-          expenses: expenseData,
-          lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
-        });
-      } catch (error) {
-        console.error("Error saving data:", error);
-        alert("There was an error saving your changes. Please try again.");
-      }
-    }, 1000);
-
-    function addIncomeSource() {
-      const tbody = document.querySelector('#incomeTable tbody');
-      const row = document.createElement('tr');
-      row.innerHTML = `
-        <td><input type="text" class="income-name" placeholder="Income source name"></td>
-        <td class="amount-input">
-          <span>$</span>
-          <input type="number" class="income-amount" step="0.01" min="0" placeholder="0.00">
-        </td>
-        <td>
-          <select class="income-frequency">
-            <option value="monthly">Monthly (1 per month)</option>
-            <option value="everyOtherWeek">Every other week (2 per month)</option>
-            <option value="weekly">Weekly (4 per month)</option>
-            <option value="twiceWeek">Twice a week (8 per month)</option>
-          </select>
-        </td>
-        <td class="monthly-total">$0.00</td>
-        <td><button class="delete-button" onclick="removeRow(this)">Delete</button></td>
-      `;
-      tbody.appendChild(row);
-      attachListeners(row);
-      calculateTotals();
-      debouncedSave();
-      return row;
-    }
-
-    function addExpenseRow() {
-      const tbody = document.querySelector('#expenseTable tbody');
-      const row = document.createElement('tr');
-      row.innerHTML = `
-        <td><input type="text" class="expense-name" placeholder="Expense name"></td>
-        <td class="amount-input">
-          <span>$</span>
-          <input type="number" class="expense-amount" step="0.01" min="0" placeholder="0.00">
-        </td>
-        <td>
-          <input type="number" class="expense-portion" step="0.01" value="100" min="0" max="100">
-        </td>
-        <td class="monthly-expense">$0.00</td>
-        <td class="per-paycheck-expense">$0.00</td>
-        <td><button class="delete-button" onclick="removeRow(this)">Delete</button></td>
-      `;
-      tbody.appendChild(row);
-      attachListeners(row);
-      calculateTotals();
-      debouncedSave();
-      return row;
-    }
-
-    function removeRow(button) {
-      const row = button.closest('tr');
-      row.remove();
-      calculateTotals();
-      debouncedSave();
-    }
-
-    function attachListeners(row) {
-      const inputs = row.querySelectorAll('input, select');
-      inputs.forEach(input => {
-        input.addEventListener('input', () => {
-          calculateTotals();
-          debouncedSave();
-        });
-        
-        // Add blur event for better mobile experience
-        input.addEventListener('blur', () => {
-          calculateTotals();
-          debouncedSave();
-        });
-      });
-    }
-
-    function getFrequencyMultiplier(frequency) {
-      const multipliers = {
-        'weekly': 4,
-        'twiceWeek': 8,
-        'everyOtherWeek': 2,
-        'monthly': 1
-      };
-      return multipliers[frequency] || 1;
-    }
-
-    function formatCurrency(amount) {
-      return new Intl.NumberFormat('en-US', {
-        style: 'currency',
-        currency: 'USD',
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-      }).format(amount);
-    }
-
-    function calculateTotals() {
-      let totalMonthlyIncome = 0;
-      let totalMonthlyExpenses = 0;
-
-      // Calculate income totals
-      document.querySelectorAll('#incomeTable tbody tr').forEach(row => {
-        const amount = parseFloat(row.querySelector('.income-amount').value) || 0;
-        const frequency = row.querySelector('.income-frequency').value;
-        const monthlyAmount = amount * getFrequencyMultiplier(frequency);
-        row.querySelector('.monthly-total').textContent = formatCurrency(monthlyAmount);
-        totalMonthlyIncome += monthlyAmount;
-      });
-
-      // Calculate expense totals
-      document.querySelectorAll('#expenseTable tbody tr').forEach(row => {
-        const amount = parseFloat(row.querySelector('.expense-amount').value) || 0;
-        const portion = parseFloat(row.querySelector('.expense-portion').value) || 0;
-        const monthlyExpense = amount * (portion / 100);
-        const perPaycheckExpense = monthlyExpense / 2;
-        
-        row.querySelector('.monthly-expense').textContent = formatCurrency(monthlyExpense);
-        row.querySelector('.per-paycheck-expense').textContent = formatCurrency(perPaycheckExpense);
-        totalMonthlyExpenses += monthlyExpense;
-      });
-
-      // Update summary cards
-      document.getElementById('monthlyIncome').textContent = formatCurrency(totalMonthlyIncome);
-      document.getElementById('monthlyExpenses').textContent = formatCurrency(totalMonthlyExpenses);
-      document.getElementById('calculatedPaycheck').textContent = formatCurrency(totalMonthlyIncome / 2);
-      document.getElementById('leftoverPerPaycheck').textContent = formatCurrency((totalMonthlyIncome - totalMonthlyExpenses) / 2);
-    }
-
-    async function resetAllData() {
-      if (!confirm('Are you sure you want to reset all data? This cannot be undone.')) {
-        return;
-      }
-
-      try {
-        document.querySelector('#incomeTable tbody').innerHTML = '';
-        document.querySelector('#expenseTable tbody').innerHTML = '';
-        calculateTotals();
-        
-        const user = auth.currentUser;
-        if (user) {
-          await db.collection('budgetSheet').doc(user.uid).set({
-            income: [],
-            expenses: [],
-            lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
-          });
-        }
-      } catch (error) {
-        console.error("Error resetting data:", error);
-        alert("There was an error resetting your data. Please try again.");
-      }
-    }
-
-    // Initialize page with current date
-    document.addEventListener('DOMContentLoaded', () => {
-      // Set up error boundary
-      window.onerror = function(msg, url, lineNo, columnNo, error) {
-        console.error('Error: ' + msg + '\nURL: ' + url + '\nLine: ' + lineNo + '\nColumn: ' + columnNo + '\nError object: ' + JSON.stringify(error));
-        return false;
-      };
+    
+    // Attach change listeners to the main form inputs
+    document.getElementById('paycheckAmount').addEventListener('input', () => {
+      calculateBudget();
+      saveToDatabase();
+    });
+    document.getElementById('payFrequency').addEventListener('change', () => {
+      calculateBudget();
+      saveToDatabase();
     });
   </script>
 </body>
