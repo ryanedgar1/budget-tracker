@@ -117,10 +117,16 @@
       measurementId: "G-Q9XBRDQL7V"
     };
 
+    // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const database = firebase.database();
-    
+
+    // Sign in anonymously so auth.currentUser is defined
+    auth.signInAnonymously().catch(function(error) {
+      console.error("Anonymous sign-in failed:", error);
+    });
+
     const expenseTableBody = document.querySelector('#expenseTable tbody');
     
     function addExpenseRow(data = {}) {
