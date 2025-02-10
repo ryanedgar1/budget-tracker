@@ -315,6 +315,7 @@
           if (data) {
             document.getElementById('paycheckAmount').value = data.paycheck?.amount || '';
             document.getElementById('payFrequency').value = data.paycheck?.frequency || 'weekly';
+            // Clear both income and expense tables before repopulating
             incomeTableBody.innerHTML = '';
             expenseTableBody.innerHTML = '';
             if (data.incomes) {
