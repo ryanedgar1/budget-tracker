@@ -8,8 +8,8 @@
   <link rel="apple-touch-icon" href="/logo.png" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
-  
-  <!-- Add Firebase SDK -->
+
+  <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
@@ -34,8 +34,8 @@
       --radius-sm: 0.375rem;
       --radius: 0.5rem;
       --radius-lg: 0.75rem;
-      --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
-      --shadow-lg: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+      --shadow: 0 1px 3px 0 rgba(0,0,0,0.1);
+      --shadow-lg: 0 4px 6px -1px rgba(0,0,0,0.1);
     }
     * {
       margin: 0;
@@ -265,7 +265,7 @@
       left: 0;
       right: 0;
       bottom: 0;
-      background: rgba(0, 0, 0, 0.5);
+      background: rgba(0,0,0,0.5);
       align-items: center;
       justify-content: center;
       z-index: 1000;
@@ -314,6 +314,20 @@
     /* FORCE THE DELETE MODAL TO BE HIDDEN BY DEFAULT */
     #delete-confirm-modal {
       display: none !important;
+    }
+    /* New styling for the "I Got Paid" section */
+    .got-paid-section {
+      margin-top: 20px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      background-color: #f1f5f9;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .got-paid-section label {
+      font-weight: bold;
     }
     @media (max-width: 1024px) {
       .charts-container {
@@ -396,18 +410,15 @@
                   <option value="refunds">Refunds</option>
                   <option value="other_income">Other Income</option>
                 </optgroup>
-
                 <optgroup label="Housing">
                   <option value="rent">Rent/Mortgage</option>
                   <option value="utilities">Utilities</option>
                   <option value="maintenance">Home Maintenance</option>
                   <option value="insurance">Home Insurance</option>
                 </optgroup>
-
                 <optgroup label="Geneal Expenses">
                   <option value="Paycheck Expenses">Paycheck Expense</option>
                 </optgroup>
-
                 <optgroup label="Transportation">
                   <option value="car_payment">Car Payment</option>
                   <option value="gas">Gas</option>
@@ -415,14 +426,12 @@
                   <option value="public_transport">Public Transport</option>
                   <option value="parking">Parking</option>
                 </optgroup>
-
                 <optgroup label="Food & Dining">
                   <option value="groceries">Groceries</option>
                   <option value="restaurants">Restaurants</option>
                   <option value="takeout">Takeout</option>
                   <option value="coffee">Coffee Shops</option>
                 </optgroup>
-
                 <optgroup label="Personal">
                   <option value="healthcare">Healthcare</option>
                   <option value="clothing">Clothing</option>
@@ -432,14 +441,12 @@
                   <option value="subscriptions">Subscriptions</option>
                   <option value="personal_care">Personal Care</option>
                 </optgroup>
-
                 <optgroup label="Bills & Utilities">
                   <option value="phone">Phone</option>
                   <option value="internet">Internet</option>
                   <option value="streaming">Streaming Services</option>
                   <option value="insurance">Insurance</option>
                 </optgroup>
-
                 <optgroup label="Other">
                   <option value="gifts_given">Gifts Given</option>
                   <option value="donations">Donations</option>
@@ -521,7 +528,6 @@
                     <option value="refunds">Refunds</option>
                     <option value="other_income">Other Income</option>
                   </optgroup>
-
                   <!-- Expense Categories -->
                   <optgroup label="Housing">
                     <option value="rent">Rent/Mortgage</option>
@@ -529,11 +535,9 @@
                     <option value="maintenance">Home Maintenance</option>
                     <option value="insurance">Home Insurance</option>
                   </optgroup>
-
                   <optgroup label="Geneal Expenses">
                     <option value="Paycheck Expenses">Paycheck Expense</option>
                   </optgroup>
-
                   <optgroup label="Transportation">
                     <option value="car_payment">Car Payment</option>
                     <option value="gas">Gas</option>
@@ -541,14 +545,12 @@
                     <option value="public_transport">Public Transport</option>
                     <option value="parking">Parking</option>
                   </optgroup>
-
                   <optgroup label="Food & Dining">
                     <option value="groceries">Groceries</option>
                     <option value="restaurants">Restaurants</option>
                     <option value="takeout">Takeout</option>
                     <option value="coffee">Coffee Shops</option>
                   </optgroup>
-
                   <optgroup label="Personal">
                     <option value="healthcare">Healthcare</option>
                     <option value="clothing">Clothing</option>
@@ -558,14 +560,12 @@
                     <option value="subscriptions">Subscriptions</option>
                     <option value="personal_care">Personal Care</option>
                   </optgroup>
-
                   <optgroup label="Bills & Utilities">
                     <option value="phone">Phone</option>
                     <option value="internet">Internet</option>
                     <option value="streaming">Streaming Services</option>
                     <option value="insurance">Insurance</option>
                   </optgroup>
-
                   <optgroup label="Other">
                     <option value="gifts_given">Gifts Given</option>
                     <option value="donations">Donations</option>
@@ -627,7 +627,6 @@
           </div>
         </div>
       </section>
-
       <!-- Summary Section -->
       <section class="card summary-section">
         <div class="card-header">
@@ -645,7 +644,6 @@
           </div>
         </div>
       </section>
-
       <!-- Transactions Section -->
       <section class="card transactions-section">
         <div class="card-header">
@@ -657,7 +655,7 @@
       </section>
     </div>
 
-    <!-- Delete Confirmation Modal (with inline style to force hidden by default) -->
+    <!-- Delete Confirmation Modal -->
     <div id="delete-confirm-modal" class="modal confirm-delete-modal" style="display: none !important;">
       <div class="modal-content">
         <h3>Confirm Delete</h3>
@@ -843,10 +841,7 @@
       const name = nameInput?.value?.trim();
       
       if (name) {
-        const person = {
-          id: generateId(),
-          name
-        };
+        const person = { id: generateId(), name };
         state.people.push(person);
         updatePersonSelect();
         updatePeopleList();
@@ -873,6 +868,31 @@
         `;
         peopleList.appendChild(div);
       });
+      // Update the "Got Paid" dropdown with current people
+      updateGotPaidDropdown();
+    }
+
+    function updateGotPaidDropdown() {
+      const gotPaidSelect = document.getElementById("gotPaidPerson");
+      if (gotPaidSelect) {
+        // Clear current options
+        gotPaidSelect.innerHTML = "";
+        // If there are no people, add a default option "You"
+        if (state.people.length === 0) {
+          const opt = document.createElement("option");
+          opt.value = "You";
+          opt.textContent = "You";
+          gotPaidSelect.appendChild(opt);
+        } else {
+          // Otherwise, add each person as an option
+          state.people.forEach(person => {
+            const opt = document.createElement("option");
+            opt.value = person.id;
+            opt.textContent = person.name;
+            gotPaidSelect.appendChild(opt);
+          });
+        }
+      }
     }
 
     function showDeleteModal(personId) {
@@ -882,7 +902,6 @@
       state.deletePersonId = personId;
       elements.deletePersonName.textContent = person.name;
       elements.deleteModal.classList.add("show");
-      // Ensure no inline style interferes:
       elements.deleteModal.removeAttribute("style");
       console.log("showDeleteModal called for person:", person);
     }
@@ -893,19 +912,15 @@
     function hidePeopleModal() {
       document.getElementById("people-modal").classList.remove("show");
     }
-
     function hideDeleteModal() {
       elements.deleteModal.classList.remove("show");
       elements.deleteModal.removeAttribute("style");
       state.deletePersonId = null;
     }
-
     function confirmDeletePerson() {
       if (!state.deletePersonId) return;
-      
       state.transactions = state.transactions.filter((t) => t.personId !== state.deletePersonId);
       state.people = state.people.filter((p) => p.id !== state.deletePersonId);
-      
       updateUI();
       saveToFirebase();
       hideDeleteModal();
@@ -915,7 +930,6 @@
     function handleAddTransaction(e) {
       e.preventDefault();
       const form = e.target;
-      
       const transaction = {
         id: generateId(),
         personId: form.querySelector("#transaction-person")?.value,
@@ -926,19 +940,16 @@
         amount: parseFloat(form.querySelector("#transaction-amount")?.value || "0"),
         date: form.querySelector("#transaction-date")?.value
       };
-      
       if (validateTransaction(transaction)) {
         state.transactions.push(transaction);
         const filteredTransactions = applyCurrentFilters();
         updateTransactionList(filteredTransactions);
         updateSummary(filteredTransactions);
         form.reset();
-        
         const dateInput = form.querySelector("#transaction-date");
         if (dateInput) {
           dateInput.value = new Date().toISOString().split("T")[0];
         }
-        
         saveToFirebase();
       }
     }
@@ -947,8 +958,6 @@
     function showEditTransactionModal(transactionId) {
       const transaction = state.transactions.find((t) => t.id === transactionId);
       if (!transaction) return;
-      
-      // Populate edit modal with transaction details
       document.getElementById("edit-transaction-id").value = transaction.id;
       document.getElementById("edit-transaction-person").value = transaction.personId;
       document.getElementById("edit-transaction-type").value = transaction.type;
@@ -958,8 +967,6 @@
       document.getElementById("edit-transaction-date").value = transaction.date;
       document.getElementById("edit-transaction-description").value = transaction.description || "";
       document.getElementById("edit-transaction-modal").classList.add("show");
-      
-      // Populate person select
       const personSelect = document.getElementById("edit-transaction-person");
       personSelect.innerHTML = "";
       state.people.forEach((person) => {
@@ -968,18 +975,13 @@
         option.textContent = person.name;
         personSelect.appendChild(option);
       });
-      
-      // Show modal
       document.getElementById("edit-transaction-modal").style.display = "flex";
     }
-
     function closeEditTransactionModal() {
       document.getElementById("edit-transaction-modal").classList.remove("show");
     }
-
     function handleEditTransaction(e) {
       e.preventDefault();
-      
       const transaction = {
         id: document.getElementById("edit-transaction-id").value,
         personId: document.getElementById("edit-transaction-person").value,
@@ -990,25 +992,16 @@
         amount: parseFloat(document.getElementById("edit-transaction-amount").value || "0"),
         date: document.getElementById("edit-transaction-date").value
       };
-      
-      // Find and update the transaction in the state
       const index = state.transactions.findIndex((t) => t.id === transaction.id);
       if (index !== -1) {
         state.transactions[index] = transaction;
-        
-        // Update UI
         const filteredTransactions = applyCurrentFilters();
         updateTransactionList(filteredTransactions);
         updateSummary(filteredTransactions);
-        
-        // Save to Firebase
         saveToFirebase();
-        
-        // Close modal
         closeEditTransactionModal();
       }
     }
-
     function removeTransaction(transactionId) {
       const index = state.transactions.findIndex((t) => t.id === transactionId);
       if (index !== -1) {
@@ -1023,7 +1016,6 @@
     // Filtering and UI Update Functions
     function updatePersonSelect() {
       if (!elements.personSelect) return;
-      
       elements.personSelect.innerHTML = "";
       state.people.forEach((person) => {
         const option = document.createElement("option");
@@ -1032,7 +1024,6 @@
         elements.personSelect.appendChild(option);
       });
     }
-
     function updateUI() {
       updatePersonSelect();
       updatePeopleList();
@@ -1040,43 +1031,34 @@
       updateTransactionList(filteredTransactions);
       updateSummary(filteredTransactions);
     }
-
     function applyDateFilter() {
       const startDate = document.getElementById("start-date").value;
       const endDate = document.getElementById("end-date").value;
-      
       if (!startDate || !endDate) {
         alert("Please select both start and end dates");
         return;
       }
-      
       state.currentFilters.startDate = new Date(startDate);
       state.currentFilters.endDate = new Date(endDate);
-      
       const filteredTransactions = applyCurrentFilters();
       updateTransactionList(filteredTransactions);
       updateSummary(filteredTransactions);
     }
-
     function clearDateFilter() {
       document.getElementById("start-date").value = "";
       document.getElementById("end-date").value = "";
       document.getElementById("period-filter").value = "all";
-      
       state.currentFilters.startDate = null;
       state.currentFilters.endDate = null;
-      
       updateTransactionList(state.transactions);
       updateSummary(state.transactions);
     }
-
     function handlePeriodChange(e) {
       const period = e.target.value;
       const today = new Date();
       let startDate = new Date();
       const startDateInput = document.getElementById("start-date");
       const endDateInput = document.getElementById("end-date");
-      
       switch (period) {
         case "daily":
           startDate = today;
@@ -1094,44 +1076,34 @@
           clearDateFilter();
           return;
       }
-      
       startDateInput.value = startDate.toISOString().split("T")[0];
       endDateInput.value = today.toISOString().split("T")[0];
       applyDateFilter();
     }
-
     function applyCurrentFilters() {
       if (!state.currentFilters.startDate || !state.currentFilters.endDate) {
         return state.transactions;
       }
-      
       return state.transactions.filter((transaction) => {
         const transactionDate = new Date(transaction.date);
-        return (
-          transactionDate >= state.currentFilters.startDate &&
-          transactionDate <= state.currentFilters.endDate
-        );
+        return (transactionDate >= state.currentFilters.startDate &&
+                transactionDate <= state.currentFilters.endDate);
       });
     }
-
     function updateTransactionList(transactions = state.transactions) {
       if (!elements.transactionList) return;
-      
       elements.transactionList.innerHTML = "";
       const sortedTransactions = [...transactions].sort(
         (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
       );
-      
       sortedTransactions.forEach((transaction) => {
         const person = state.people.find((p) => p.id === transaction.personId);
         const div = document.createElement("div");
         div.className = `transaction-item ${transaction.type}`;
-        
         const formattedAmount = new Intl.NumberFormat("en-US", {
           style: "currency",
           currency: "USD"
         }).format(transaction.amount);
-        
         div.innerHTML = `
           <div class="transaction-info">
             <strong>${person?.name || "Unknown"}</strong>
@@ -1147,21 +1119,15 @@
             <span class="transaction-amount">
               ${transaction.type === TransactionType.INCOME ? "+" : "-"}${formattedAmount}
             </span>
-            <button class="btn btn-outline" onclick="showEditTransactionModal('${transaction.id}')">
-              Edit
-            </button>
-            <button class="btn btn-outline" onclick="removeTransaction('${transaction.id}')">
-              Delete
-            </button>
+            <button class="btn btn-outline" onclick="showEditTransactionModal('${transaction.id}')">Edit</button>
+            <button class="btn btn-outline" onclick="removeTransaction('${transaction.id}')">Delete</button>
           </div>
         `;
         elements.transactionList.appendChild(div);
       });
     }
-
     function updateSummary(transactions = state.transactions) {
       if (!elements.totalSummary) return;
-      
       const summary = state.people.map((person) => {
         const personTransactions = transactions.filter((t) => t.personId === person.id);
         const income = personTransactions
@@ -1177,33 +1143,25 @@
           balance: income - expenses
         };
       });
-      
       const formatter = new Intl.NumberFormat("en-US", {
         style: "currency",
         currency: "USD"
       });
-      
       elements.totalSummary.innerHTML = summary
-        .map(
-          (s) => `
-        <div class="summary-item">
-          <h3>${s.name}</h3>
-          <p>Income: ${formatter.format(s.income)}</p>
-          <p>Expenses: ${formatter.format(s.expenses)}</p>
-          <p>Balance: ${formatter.format(s.balance)}</p>
-        </div>
-      `
-        )
-        .join("");
-      
+        .map((s) => `
+          <div class="summary-item">
+            <h3>${s.name}</h3>
+            <p>Income: ${formatter.format(s.income)}</p>
+            <p>Expenses: ${formatter.format(s.expenses)}</p>
+            <p>Balance: ${formatter.format(s.balance)}</p>
+          </div>
+        `).join("");
       updateCharts(summary);
     }
-
     function updateCharts(summary) {
       if (charts.incomeExpense) {
         charts.incomeExpense.destroy();
       }
-      
       if (elements.incomeExpenseChart instanceof HTMLCanvasElement) {
         charts.incomeExpense = new Chart(elements.incomeExpenseChart, {
           type: "bar",
@@ -1246,11 +1204,9 @@
           }
         });
       }
-      
       if (charts.category) {
         charts.category.destroy();
       }
-      
       if (elements.categoryChart instanceof HTMLCanvasElement) {
         const categoryData = {};
         state.transactions.forEach((t) => {
@@ -1258,7 +1214,6 @@
             categoryData[t.category] = (categoryData[t.category] || 0) + t.amount;
           }
         });
-        
         charts.category = new Chart(elements.categoryChart, {
           type: "doughnut",
           data: {
@@ -1284,16 +1239,12 @@
             plugins: {
               legend: {
                 position: "bottom",
-                labels: {
-                  padding: 20
-                }
+                labels: { padding: 20 }
               },
               title: {
                 display: true,
                 text: "Expenses by Category",
-                padding: {
-                  bottom: 20
-                }
+                padding: { bottom: 20 }
               }
             }
           }
@@ -1301,39 +1252,48 @@
       }
     }
 
+    // "I Got Paid" feature
+    function handleGotPaid() {
+      const gotPaidSelect = document.getElementById("gotPaidPerson");
+      const selectedPerson = gotPaidSelect.value;
+      if (!confirm(`Mark "${selectedPerson}" as having been paid and reset the running expense total for this pay period? This will clear all current expense entries.`)) {
+        return;
+      }
+      // (Optional: Record the current expense total in a separate history node in Firebase here.)
+      // Clear all expense rows to reset the running total.
+      expenseTableBody.innerHTML = "";
+      calculateBudget();
+      saveBudgetData();
+      alert(`Expense total has been reset for "${selectedPerson}".`);
+    }
+
+    // Initialize expense date input (if applicable)
     document.addEventListener("DOMContentLoaded", () => {
       const dateInput = document.getElementById("transaction-date");
       if (dateInput) {
-        const today = new Date().toISOString().split("T")[0];
-        dateInput.value = today;
+        dateInput.value = new Date().toISOString().split("T")[0];
       }
-      
       const transactionForm = document.getElementById("transaction-form");
       const editTransactionForm = document.getElementById("edit-transaction-form");
       const applyFilterBtn = document.getElementById("apply-filter");
       const clearFilterBtn = document.getElementById("clear-filter");
       const periodFilter = document.getElementById("period-filter");
-      
       if (transactionForm) {
         transactionForm.addEventListener("submit", handleAddTransaction);
       }
-      
       if (editTransactionForm) {
         editTransactionForm.addEventListener("submit", handleEditTransaction);
       }
-      
       applyFilterBtn?.addEventListener("click", applyDateFilter);
       clearFilterBtn?.addEventListener("click", clearDateFilter);
       periodFilter?.addEventListener("change", handlePeriodChange);
-      
       elements.confirmDelete?.addEventListener("click", confirmDeletePerson);
       elements.cancelDelete?.addEventListener("click", hideDeleteModal);
     });
-    
+
     auth.onAuthStateChanged((user) => {
       const loginModal = document.getElementById("login-modal");
       const appContainer = document.getElementById("app-container");
-      
       if (user) {
         loginModal.classList.remove("show");
         appContainer.style.display = "block";
@@ -1343,7 +1303,8 @@
         appContainer.style.display = "none";
       }
     });
-    
+
+    // Expose functions for inline event handlers.
     window.handleLogin = handleLogin;
     window.handleSignup = handleSignup;
     window.handleLogout = handleLogout;
@@ -1354,6 +1315,7 @@
     window.showEditTransactionModal = showEditTransactionModal;
     window.closeEditTransactionModal = closeEditTransactionModal;
     window.removeTransaction = removeTransaction;
+    window.handleGotPaid = handleGotPaid;
   </script>
 </body>
 </html>
