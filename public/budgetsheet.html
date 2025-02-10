@@ -216,7 +216,7 @@
     }
 
     function loadBudgetData(userId) {
-      database.ref(`users/${userId}/budget`).once('value')
+      return database.ref(`users/${userId}/budget`).once('value')
         .then((snapshot) => {
           const data = snapshot.val();
           if (data) {
