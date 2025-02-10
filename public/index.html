@@ -8,7 +8,7 @@
   <link rel="apple-touch-icon" href="/logo.png" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
-  
+
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
@@ -82,12 +82,10 @@
       box-shadow: var(--shadow-lg);
       overflow: hidden;
     }
-    /* Sections */
     .transaction-section,
     .filters-section,
     .summary-section,
-    .transactions-section,
-    .got-paid-section {
+    .transactions-section {
       grid-column: span 12;
     }
     .card-header {
@@ -320,12 +318,12 @@
     /* New styling for the "I Got Paid" section */
     .got-paid-section {
       margin-top: 20px;
-      padding: 1rem;
+      padding: 10px;
       border: 1px solid #ccc;
       border-radius: 4px;
       background-color: #f1f5f9;
       display: flex;
-      flex-direction: column;
+      align-items: center;
       gap: 10px;
     }
     .got-paid-section label {
@@ -401,6 +399,7 @@
               <label>Category (Optional)</label>
               <select id="edit-transaction-category" class="input-field">
                 <option value="">Select Category (Optional)</option>
+                <!-- Income Categories -->
                 <optgroup label="Income">
                   <option value="salary">Salary</option>
                   <option value="investment">Investment</option>
@@ -495,18 +494,6 @@
     </header>
 
     <div class="content-grid">
-      <!-- "I Got Paid" Section -->
-      <section class="card got-paid-section">
-        <div class="card-header">
-          <h2>I Got Paid</h2>
-        </div>
-        <div class="card-body">
-          <label for="gotPaidPerson">Select the person who got paid:</label>
-          <select id="gotPaidPerson" class="input-field"></select>
-          <button type="button" onclick="handleGotPaid()" class="btn btn-primary btn-large">Confirm Payment</button>
-        </div>
-      </section>
-
       <!-- Transaction Form -->
       <section class="card transaction-section">
         <div class="card-header">
@@ -530,6 +517,7 @@
                 <label>Category (Optional)</label>
                 <select id="transaction-category" class="input-field">
                   <option value="">Select Category (Optional)</option>
+                  <!-- Income Categories -->
                   <optgroup label="Income">
                     <option value="salary">Salary</option>
                     <option value="investment">Investment</option>
@@ -540,6 +528,7 @@
                     <option value="refunds">Refunds</option>
                     <option value="other_income">Other Income</option>
                   </optgroup>
+                  <!-- Expense Categories -->
                   <optgroup label="Housing">
                     <option value="rent">Rent/Mortgage</option>
                     <option value="utilities">Utilities</option>
@@ -606,7 +595,6 @@
           </form>
         </div>
       </section>
-      
       <!-- Filters Section -->
       <section class="card filters-section">
         <div class="card-header">
@@ -639,7 +627,6 @@
           </div>
         </div>
       </section>
-      
       <!-- Summary Section -->
       <section class="card summary-section">
         <div class="card-header">
@@ -657,7 +644,6 @@
           </div>
         </div>
       </section>
-      
       <!-- Transactions Section -->
       <section class="card transactions-section">
         <div class="card-header">
@@ -700,7 +686,7 @@
       </div>
     </div>
   </div>
-  
+
   <script>
     // Firebase Configuration
     const firebaseConfig = {
@@ -882,20 +868,23 @@
         `;
         peopleList.appendChild(div);
       });
+      // Update the "Got Paid" dropdown with current people
       updateGotPaidDropdown();
     }
 
-    // Update the dropdown for the "I Got Paid" section.
     function updateGotPaidDropdown() {
       const gotPaidSelect = document.getElementById("gotPaidPerson");
       if (gotPaidSelect) {
+        // Clear current options
         gotPaidSelect.innerHTML = "";
+        // If there are no people, add a default option "You"
         if (state.people.length === 0) {
           const opt = document.createElement("option");
-          opt.value = "";
-          opt.textContent = "No people available";
+          opt.value = "You";
+          opt.textContent = "You";
           gotPaidSelect.appendChild(opt);
         } else {
+          // Otherwise, add each person as an option
           state.people.forEach(person => {
             const opt = document.createElement("option");
             opt.value = person.id;
@@ -1024,23 +1013,6 @@
       }
     }
 
-    // "I Got Paid" Functionality
-    function handleGotPaid() {
-      const gotPaidSelect = document.getElementById("gotPaidPerson");
-      const personId = gotPaidSelect.value;
-      if (!personId) {
-        alert("Please select a person who got paid.");
-        return;
-      }
-      if (confirm("Are you sure you want to reset the spending total for this person? This will remove all expense transactions for that person for the current pay period.")) {
-        // Remove all expense transactions for the selected person.
-        state.transactions = state.transactions.filter(t => !(t.personId === personId && t.type === TransactionType.EXPENSE));
-        updateUI();
-        saveToFirebase();
-        alert("The running total has been reset for the selected person.");
-      }
-    }
-
     // Filtering and UI Update Functions
     function updatePersonSelect() {
       if (!elements.personSelect) return;
@@ -1055,7 +1027,6 @@
     function updateUI() {
       updatePersonSelect();
       updatePeopleList();
-      updateGotPaidDropdown();
       const filteredTransactions = applyCurrentFilters();
       updateTransactionList(filteredTransactions);
       updateSummary(filteredTransactions);
@@ -1148,12 +1119,8 @@
             <span class="transaction-amount">
               ${transaction.type === TransactionType.INCOME ? "+" : "-"}${formattedAmount}
             </span>
-            <button class="btn btn-outline" onclick="showEditTransactionModal('${transaction.id}')">
-              Edit
-            </button>
-            <button class="btn btn-outline" onclick="removeTransaction('${transaction.id}')">
-              Delete
-            </button>
+            <button class="btn btn-outline" onclick="showEditTransactionModal('${transaction.id}')">Edit</button>
+            <button class="btn btn-outline" onclick="removeTransaction('${transaction.id}')">Delete</button>
           </div>
         `;
         elements.transactionList.appendChild(div);
@@ -1163,10 +1130,12 @@
       if (!elements.totalSummary) return;
       const summary = state.people.map((person) => {
         const personTransactions = transactions.filter((t) => t.personId === person.id);
-        const income = personTransactions.filter((t) => t.type === TransactionType.INCOME)
-                          .reduce((sum, t) => sum + t.amount, 0);
-        const expenses = personTransactions.filter((t) => t.type === TransactionType.EXPENSE)
-                          .reduce((sum, t) => sum + t.amount, 0);
+        const income = personTransactions
+          .filter((t) => t.type === TransactionType.INCOME)
+          .reduce((sum, t) => sum + t.amount, 0);
+        const expenses = personTransactions
+          .filter((t) => t.type === TransactionType.EXPENSE)
+          .reduce((sum, t) => sum + t.amount, 0);
         return {
           name: person.name,
           income,
@@ -1178,14 +1147,15 @@
         style: "currency",
         currency: "USD"
       });
-      elements.totalSummary.innerHTML = summary.map(s => `
-        <div class="summary-item">
-          <h3>${s.name}</h3>
-          <p>Income: ${formatter.format(s.income)}</p>
-          <p>Expenses: ${formatter.format(s.expenses)}</p>
-          <p>Balance: ${formatter.format(s.balance)}</p>
-        </div>
-      `).join("");
+      elements.totalSummary.innerHTML = summary
+        .map((s) => `
+          <div class="summary-item">
+            <h3>${s.name}</h3>
+            <p>Income: ${formatter.format(s.income)}</p>
+            <p>Expenses: ${formatter.format(s.expenses)}</p>
+            <p>Balance: ${formatter.format(s.balance)}</p>
+          </div>
+        `).join("");
       updateCharts(summary);
     }
     function updateCharts(summary) {
@@ -1196,10 +1166,18 @@
         charts.incomeExpense = new Chart(elements.incomeExpenseChart, {
           type: "bar",
           data: {
-            labels: summary.map(s => s.name),
+            labels: summary.map((s) => s.name),
             datasets: [
-              { label: "Income", data: summary.map(s => s.income), backgroundColor: "#22c55e" },
-              { label: "Expenses", data: summary.map(s => s.expenses), backgroundColor: "#ef4444" }
+              {
+                label: "Income",
+                data: summary.map((s) => s.income),
+                backgroundColor: "#22c55e"
+              },
+              {
+                label: "Expenses",
+                data: summary.map((s) => s.expenses),
+                backgroundColor: "#ef4444"
+              }
             ]
           },
           options: {
@@ -1208,10 +1186,21 @@
             scales: {
               y: {
                 beginAtZero: true,
-                ticks: { callback: (value) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(value) }
+                ticks: {
+                  callback: (value) =>
+                    new Intl.NumberFormat("en-US", {
+                      style: "currency",
+                      currency: "USD",
+                      maximumFractionDigits: 0
+                    }).format(value)
+                }
               }
             },
-            plugins: { legend: { position: "bottom" } }
+            plugins: {
+              legend: {
+                position: "bottom"
+              }
+            }
           }
         });
       }
@@ -1220,7 +1209,7 @@
       }
       if (elements.categoryChart instanceof HTMLCanvasElement) {
         const categoryData = {};
-        state.transactions.forEach(t => {
+        state.transactions.forEach((t) => {
           if (t.type === TransactionType.EXPENSE && t.category) {
             categoryData[t.category] = (categoryData[t.category] || 0) + t.amount;
           }
@@ -1229,28 +1218,60 @@
           type: "doughnut",
           data: {
             labels: Object.keys(categoryData),
-            datasets: [{
-              data: Object.values(categoryData),
-              backgroundColor: ["#3b82f6","#22c55e","#ef4444","#f59e0b","#ec4899","#8b5cf6","#64748b"]
-            }]
+            datasets: [
+              {
+                data: Object.values(categoryData),
+                backgroundColor: [
+                  "#3b82f6",
+                  "#22c55e",
+                  "#ef4444",
+                  "#f59e0b",
+                  "#ec4899",
+                  "#8b5cf6",
+                  "#64748b"
+                ]
+              }
+            ]
           },
           options: {
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
-              legend: { position: "bottom", labels: { padding: 20 } },
-              title: { display: true, text: "Expenses by Category", padding: { bottom: 20 } }
+              legend: {
+                position: "bottom",
+                labels: { padding: 20 }
+              },
+              title: {
+                display: true,
+                text: "Expenses by Category",
+                padding: { bottom: 20 }
+              }
             }
           }
         });
       }
     }
 
+    // "I Got Paid" feature
+    function handleGotPaid() {
+      const gotPaidSelect = document.getElementById("gotPaidPerson");
+      const selectedPerson = gotPaidSelect.value;
+      if (!confirm(`Mark "${selectedPerson}" as having been paid and reset the running expense total for this pay period? This will clear all current expense entries.`)) {
+        return;
+      }
+      // (Optional: Record the current expense total in a separate history node in Firebase here.)
+      // Clear all expense rows to reset the running total.
+      expenseTableBody.innerHTML = "";
+      calculateBudget();
+      saveBudgetData();
+      alert(`Expense total has been reset for "${selectedPerson}".`);
+    }
+
+    // Initialize expense date input (if applicable)
     document.addEventListener("DOMContentLoaded", () => {
       const dateInput = document.getElementById("transaction-date");
       if (dateInput) {
-        const today = new Date().toISOString().split("T")[0];
-        dateInput.value = today;
+        dateInput.value = new Date().toISOString().split("T")[0];
       }
       const transactionForm = document.getElementById("transaction-form");
       const editTransactionForm = document.getElementById("edit-transaction-form");
@@ -1269,8 +1290,8 @@
       elements.confirmDelete?.addEventListener("click", confirmDeletePerson);
       elements.cancelDelete?.addEventListener("click", hideDeleteModal);
     });
-    
-    auth.onAuthStateChanged(user => {
+
+    auth.onAuthStateChanged((user) => {
       const loginModal = document.getElementById("login-modal");
       const appContainer = document.getElementById("app-container");
       if (user) {
@@ -1282,8 +1303,8 @@
         appContainer.style.display = "none";
       }
     });
-    
-    // Expose functions to the global scope.
+
+    // Expose functions for inline event handlers.
     window.handleLogin = handleLogin;
     window.handleSignup = handleSignup;
     window.handleLogout = handleLogout;
