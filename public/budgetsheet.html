@@ -81,25 +81,10 @@
           <option value="monthly">Monthly (1 per month)</option>
         </select>
       </label>
+      <button type="button" onclick="addExpenseRow()">Add Expense</button>
     </form>
     
-    <!-- Income Sources Section -->
-    <button type="button" onclick="addIncomeRow()">Add Income Source</button>
-    <table id="incomeTable">
-      <thead>
-        <tr>
-          <th>Income Source Name</th>
-          <th>Amount</th>
-          <th>Frequency</th>
-          <th>Monthly Income</th>
-          <th>Action</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-    
-    <!-- Expenses Section -->
-    <button type="button" onclick="addExpenseRow()">Add Expense</button>
+    <!-- Expenses Table -->
     <table id="expenseTable">
       <thead>
         <tr>
@@ -125,7 +110,7 @@
   </div>
   
   <script>
-    // Firebase configuration (only using Realtime Database)
+    // Firebase configuration
     const firebaseConfig = {
       apiKey: "AIzaSyBfns6UFmWFDKyvLq4W6EWXe1qr1cbNuUY",
       authDomain: "budgettracker-8187e.firebaseapp.com",
@@ -136,17 +121,19 @@
       appId: "1:622910803459:web:9761b015edc7b3f98a4836",
       measurementId: "G-Q9XBRDQL7V"
     };
+
+    // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const database = firebase.database();
 
-    // NOTE: Remove anonymous sign‑in since we are using email/password
+    // *** Remove the anonymous sign-in *** 
+    // (Do not call auth.signInAnonymously() if you plan to use email/password authentication.)
     // auth.signInAnonymously().catch(error => {
     //   console.error("Anonymous sign-in failed:", error);
     // });
 
     const expenseTableBody = document.querySelector('#expenseTable tbody');
-    const incomeTableBody = document.querySelector('#incomeTable tbody');
 
     // Listen for auth state changes.
     auth.onAuthStateChanged(user => {
@@ -157,6 +144,7 @@
         loadBudgetData(user.uid);
       } else {
         console.log("No user signed in.");
+        // Redirect to your login page (e.g., index.html) if no user is signed in.
         window.location.href = 'index.html';
       }
     });
@@ -165,12 +153,20 @@
     function addExpenseRow(data = {}) {
       const row = document.createElement('tr');
       row.innerHTML = `
-        <td><input type="text" class="expenseName" placeholder="Expense name" required value="${data.name || ''}"></td>
-        <td><input type="number" class="totalExpense" step="0.01" placeholder="Total expense" required value="${data.totalExpense || ''}"></td>
-        <td><input type="number" class="yourPortion" step="0.01" placeholder="Your portion (%)" required value="${data.portion || 100}"></td>
+        <td>
+          <input type="text" class="expenseName" placeholder="Expense name" required value="${data.name || ''}">
+        </td>
+        <td>
+          <input type="number" class="totalExpense" step="0.01" placeholder="Total expense" required value="${data.totalExpense || ''}">
+        </td>
+        <td>
+          <input type="number" class="yourPortion" step="0.01" placeholder="Your portion (%)" required value="${data.portion || 100}">
+        </td>
         <td class="monthlyExpense">$0.00</td>
         <td class="perPaycheckExpense">$0.00</td>
-        <td><button type="button" onclick="removeRow(this, 'expense')">Remove</button></td>
+        <td>
+          <button type="button" onclick="removeRow(this)">Remove</button>
+        </td>
       `;
       expenseTableBody.appendChild(row);
       row.querySelectorAll('input').forEach(input => {
@@ -181,40 +177,15 @@
       });
     }
 
-    // Add a new income row.
-    function addIncomeRow(data = {}) {
-      const row = document.createElement('tr');
-      row.innerHTML = `
-        <td><input type="text" class="incomeName" placeholder="Income source name" required value="${data.sourceName || ''}"></td>
-        <td><input type="number" class="incomeAmount" step="0.01" placeholder="Amount" required value="${data.amount || ''}"></td>
-        <td>
-          <select class="incomeFrequency">
-            <option value="weekly" ${data.frequency === 'weekly' ? 'selected' : ''}>Weekly</option>
-            <option value="monthly" ${data.frequency === 'monthly' ? 'selected' : ''}>Monthly</option>
-            <option value="annually" ${data.frequency === 'annually' ? 'selected' : ''}>Annually</option>
-          </select>
-        </td>
-        <td class="monthlyIncome">$0.00</td>
-        <td><button type="button" onclick="removeRow(this, 'income')">Remove</button></td>
-      `;
-      incomeTableBody.appendChild(row);
-      row.querySelectorAll('input, select').forEach(input => {
-        input.addEventListener('input', () => {
-          calculateBudget();
-          saveBudgetData();
-        });
-      });
-    }
-
-    // Remove a row (income or expense) based on type.
-    function removeRow(button, type) {
+    // Remove a row.
+    function removeRow(button) {
       const row = button.closest('tr');
       row.remove();
       calculateBudget();
       saveBudgetData();
     }
 
-    // Return the number of pay periods per month based on the selected frequency.
+    // Determine number of pay periods per month.
     function getPayPeriodCount() {
       const frequency = document.getElementById('payFrequency').value;
       switch (frequency) {
@@ -231,8 +202,8 @@
       const paycheckAmount = parseFloat(document.getElementById('paycheckAmount').value) || 0;
       const payPeriodCount = getPayPeriodCount();
       let totalExpenseMonthly = 0;
-      let additionalIncomeMonthly = 0;
-      
+      let additionalIncomeMonthly = 0;  // (Placeholder: if you add income rows, process them similarly)
+
       // Process expense rows.
       const expenseRows = expenseTableBody.querySelectorAll('tr');
       expenseRows.forEach(row => {
@@ -244,28 +215,11 @@
         row.querySelector('.monthlyExpense').textContent = `$${monthlyExpense.toFixed(2)}`;
         row.querySelector('.perPaycheckExpense').textContent = `$${expensePerPaycheck.toFixed(2)}`;
       });
-      
-      // Process income rows.
-      const incomeRows = incomeTableBody.querySelectorAll('tr');
-      incomeRows.forEach(row => {
-        const amount = parseFloat(row.querySelector('.incomeAmount').value) || 0;
-        const frequency = row.querySelector('.incomeFrequency').value;
-        let monthlyValue = 0;
-        if (frequency === 'weekly') {
-          monthlyValue = amount * 4;
-        } else if (frequency === 'monthly') {
-          monthlyValue = amount;
-        } else if (frequency === 'annually') {
-          monthlyValue = amount / 12;
-        }
-        additionalIncomeMonthly += monthlyValue;
-        row.querySelector('.monthlyIncome').textContent = `$${monthlyValue.toFixed(2)}`;
-      });
-      
+
       const paycheckMonthlyIncome = paycheckAmount * payPeriodCount;
       const totalMonthlyIncome = paycheckMonthlyIncome + additionalIncomeMonthly;
       const leftoverPerPaycheck = paycheckAmount - (totalExpenseMonthly / payPeriodCount);
-      
+
       document.getElementById('calculatedPaycheck').textContent = `$${paycheckAmount.toFixed(2)}`;
       document.getElementById('monthlyIncome').textContent = `$${paycheckMonthlyIncome.toFixed(2)}`;
       document.getElementById('additionalIncome').textContent = `$${additionalIncomeMonthly.toFixed(2)}`;
@@ -274,7 +228,7 @@
       document.getElementById('leftoverPerPaycheck').textContent = `$${leftoverPerPaycheck.toFixed(2)}`;
     }
 
-    // Save data to the Realtime Database.
+    // Save the budget data to the Realtime Database.
     function saveBudgetData() {
       const user = auth.currentUser;
       if (!user) {
@@ -286,11 +240,7 @@
           amount: document.getElementById('paycheckAmount').value,
           frequency: document.getElementById('payFrequency').value
         },
-        incomes: Array.from(incomeTableBody.querySelectorAll('tr')).map(row => ({
-          sourceName: row.querySelector('.incomeName').value,
-          amount: row.querySelector('.incomeAmount').value,
-          frequency: row.querySelector('.incomeFrequency').value
-        })),
+        incomes: [], // (If you add income rows, process them similarly)
         expenses: Array.from(expenseTableBody.querySelectorAll('tr')).map(row => ({
           name: row.querySelector('.expenseName').value,
           totalExpense: row.querySelector('.totalExpense').value,
@@ -307,7 +257,7 @@
         });
     }
 
-    // Load existing data from the Realtime Database.
+    // Load existing budget data from the Realtime Database.
     function loadBudgetData(userId) {
       return database.ref(`users/${userId}/budget`).once('value')
         .then(snapshot => {
@@ -315,11 +265,7 @@
           if (data) {
             document.getElementById('paycheckAmount').value = data.paycheck?.amount || '';
             document.getElementById('payFrequency').value = data.paycheck?.frequency || 'weekly';
-            incomeTableBody.innerHTML = '';
             expenseTableBody.innerHTML = '';
-            if (data.incomes) {
-              data.incomes.forEach(income => addIncomeRow(income));
-            }
             if (data.expenses) {
               data.expenses.forEach(expense => addExpenseRow(expense));
             }
@@ -331,7 +277,7 @@
         });
     }
 
-    // Recalculate and save when paycheck amount or frequency changes.
+    // Recalculate and save when the paycheck amount or frequency changes.
     document.getElementById('paycheckAmount').addEventListener('input', () => {
       calculateBudget();
       saveBudgetData();
