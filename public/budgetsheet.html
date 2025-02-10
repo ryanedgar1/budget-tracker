@@ -4,14 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Budget Spreadsheet</title>
-
-  <!-- Firebase SDKs - Note we're using Realtime Database instead of Firestore -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
-
   <style>
-    /* Your existing styles remain the same */
     body {
       font-family: Arial, sans-serif;
       background-color: #f8fafc;
@@ -45,41 +41,27 @@
     button {
       cursor: pointer;
     }
-    .header-actions {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
+    #loading, #main-content {
+      display: none;
     }
     .back-button {
       background-color: #3b82f6;
       color: white;
-      border: none;
+      text-decoration: none;
       padding: 8px 16px;
       border-radius: 4px;
-      text-decoration: none;
-      cursor: pointer;
-    }
-    #loading {
-      text-align: center;
-      padding: 20px;
-      font-size: 1.2rem;
-      color: #666;
+      margin-bottom: 20px;
+      display: inline-block;
     }
   </style>
 </head>
 <body>
-  <div id="loading">Loading your budget data...</div>
+  <div id="loading">Loading...</div>
 
-  <div id="main-content" style="display: none;">
-    <div class="header-actions">
-      <h1>Budget Spreadsheet</h1>
-      <div>
-        <a href="index.html" class="back-button">Back to Home</a>
-      </div>
-    </div>
+  <div id="main-content">
+    <a href="index.html" class="back-button">Back to Home</a>
+    <h1>Budget Spreadsheet</h1>
     
-    <!-- Form for paycheck details -->
     <form id="budgetForm">
       <label>
         Paycheck Amount:
@@ -97,7 +79,6 @@
       <button type="button" onclick="addExpenseRow()">Add Expense</button>
     </form>
     
-    <!-- Table to list expense items -->
     <table id="expenseTable">
       <thead>
         <tr>
@@ -109,12 +90,9 @@
           <th>Action</th>
         </tr>
       </thead>
-      <tbody>
-        <!-- Expense rows will be dynamically added here -->
-      </tbody>
+      <tbody></tbody>
     </table>
     
-    <!-- Section to display overall results -->
     <h2>Results</h2>
     <p>
       <strong>Your Paycheck:</strong> <span id="calculatedPaycheck">$0.00</span>
@@ -128,7 +106,6 @@
   </div>
   
   <script>
-    // Firebase configuration
     const firebaseConfig = {
       apiKey: "AIzaSyBfns6UFmWFDKyvLq4W6EWXe1qr1cbNuUY",
       authDomain: "budgettracker-8187e.firebaseapp.com",
@@ -140,15 +117,12 @@
       measurementId: "G-Q9XBRDQL7V"
     };
 
-    // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const database = firebase.database();
-
-    // Reference to the table body for expenses
+    
     const expenseTableBody = document.querySelector('#expenseTable tbody');
     
-    // Function to add a new expense row
     function addExpenseRow(data = {}) {
       const row = document.createElement('tr');
       row.innerHTML = `
@@ -159,7 +133,7 @@
           <input type="number" class="totalExpense" step="0.01" placeholder="Total expense" required value="${data.totalExpense || ''}">
         </td>
         <td>
-          <input type="number" class="yourPortion" step="0.01" placeholder="Your portion (%)" required value="${data.portion || ''}">
+          <input type="number" class="yourPortion" step="0.01" placeholder="Your portion (%)" required value="${data.portion || 100}">
         </td>
         <td class="monthlyExpense">$0.00</td>
         <td class="perPaycheckExpense">$0.00</td>
@@ -169,24 +143,21 @@
       `;
       expenseTableBody.appendChild(row);
       
-      // Attach event listeners
       row.querySelectorAll('input').forEach(input => {
         input.addEventListener('input', () => {
           calculateBudget();
-          saveToDatabase();
+          saveBudgetData();
         });
       });
     }
     
-    // Function to remove an expense row
     function removeExpenseRow(button) {
       const row = button.closest('tr');
       row.remove();
       calculateBudget();
-      saveToDatabase();
+      saveBudgetData();
     }
     
-    // Determine the number of pay periods per month based on frequency
     function getPayPeriodCount() {
       const frequency = document.getElementById('payFrequency').value;
       switch(frequency) {
@@ -198,14 +169,12 @@
       }
     }
     
-    // Function to perform all the budget calculations
     function calculateBudget() {
       const paycheckAmount = parseFloat(document.getElementById('paycheckAmount').value) || 0;
       const payPeriodCount = getPayPeriodCount();
       
       let totalYourMonthlyExpenses = 0;
       
-      // Process each expense row
       const rows = expenseTableBody.querySelectorAll('tr');
       rows.forEach(row => {
         const totalExpense = parseFloat(row.querySelector('.totalExpense').value) || 0;
@@ -227,8 +196,7 @@
       document.getElementById('leftoverPerPaycheck').textContent = `$${leftoverPerPaycheck.toFixed(2)}`;
     }
 
-    // Function to save data to Firebase Realtime Database
-    async function saveToDatabase() {
+    function saveBudgetData() {
       const user = auth.currentUser;
       if (!user) return;
 
@@ -244,54 +212,33 @@
         }))
       };
 
-      try {
-        await database.ref("users/" + user.uid + "/budgetSheet").set(budgetData);
-      } catch (error) {
-        console.error('Error saving data:', error);
-      }
+      database.ref(`users/${user.uid}/budget`).set(budgetData);
     }
 
-    // Function to load data from Firebase Realtime Database
-    async function loadFromDatabase(userId) {
-      try {
-        const snapshot = await database.ref("users/" + userId + "/budgetSheet").once('value');
-        const data = snapshot.val();
-        
-        if (data) {
-          // Load paycheck data
-          if (data.paycheck) {
-            document.getElementById('paycheckAmount').value = data.paycheck.amount || '';
-            document.getElementById('payFrequency').value = data.paycheck.frequency || 'weekly';
+    function loadBudgetData(userId) {
+      database.ref(`users/${userId}/budget`).once('value')
+        .then((snapshot) => {
+          const data = snapshot.val();
+          if (data) {
+            document.getElementById('paycheckAmount').value = data.paycheck?.amount || '';
+            document.getElementById('payFrequency').value = data.paycheck?.frequency || 'weekly';
+            
+            expenseTableBody.innerHTML = '';
+            if (data.expenses) {
+              data.expenses.forEach(expense => addExpenseRow(expense));
+            }
+            calculateBudget();
           }
-          
-          // Clear existing expenses
-          expenseTableBody.innerHTML = '';
-          
-          // Load expenses
-          if (data.expenses) {
-            data.expenses.forEach(expense => {
-              addExpenseRow({
-                name: expense.name,
-                totalExpense: expense.totalExpense,
-                portion: expense.portion
-              });
-            });
-          }
-          
-          calculateBudget();
-        }
-      } catch (error) {
-        console.error('Error loading data:', error);
-      }
+        });
     }
 
-    // Auth state listener
     auth.onAuthStateChanged(function(user) {
       const loadingElement = document.getElementById('loading');
       const mainContent = document.getElementById('main-content');
       
       if (user) {
-        loadFromDatabase(user.uid).then(() => {
+        loadingElement.style.display = 'block';
+        loadBudgetData(user.uid).then(() => {
           loadingElement.style.display = 'none';
           mainContent.style.display = 'block';
         });
@@ -299,15 +246,14 @@
         window.location.href = 'index.html';
       }
     });
-    
-    // Attach change listeners to the main form inputs
+
     document.getElementById('paycheckAmount').addEventListener('input', () => {
       calculateBudget();
-      saveToDatabase();
+      saveBudgetData();
     });
     document.getElementById('payFrequency').addEventListener('change', () => {
       calculateBudget();
-      saveToDatabase();
+      saveBudgetData();
     });
   </script>
 </body>
